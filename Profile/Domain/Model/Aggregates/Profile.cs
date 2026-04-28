@@ -1,3 +1,6 @@
+using EcotrackPlatform.API.Organization.Domain.Model.Entities;
+using EcotrackPlatform.API.Profile.Domain.Model.ValueObjects;
+
 namespace EcotrackPlatform.API.Profile.Domain.Model.Aggregates
 {
     public class Profile
@@ -6,14 +9,20 @@ namespace EcotrackPlatform.API.Profile.Domain.Model.Aggregates
         public string Email { get; private set; } = default!;
         public string DisplayName { get; private set; } = default!;
         public string PasswordHash { get; private set; } = default!;
+        
+        public UserRole Role { get; private set; }
+        
+        private readonly List<OrganizationMember> _memberships = new();
+        public IReadOnlyCollection<OrganizationMember> Memberships => _memberships.AsReadOnly();
 
         protected Profile() { } // EF
 
-        public Profile(string email, string displayName, string passwordHash)
+        public Profile(string email, string displayName, string passwordHash, UserRole role)
         {
             SetEmail(email);
             Rename(displayName);
             SetPasswordHash(passwordHash);
+            Role = role;
         }
 
         public void Rename(string newName)
