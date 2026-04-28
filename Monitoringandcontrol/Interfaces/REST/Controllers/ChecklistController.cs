@@ -38,7 +38,7 @@ public class ChecklistController : ControllerBase
 
     [HttpGet]
     [SwaggerOperation(Summary = "Get checklists by Task Id")]
-    public async Task<IActionResult> GetByTaskId(string taskId)
+    public async Task<IActionResult> GetByTaskId(int taskId)
     {
         var checklist = await _getChecklistByTaskIdQueryService.Handle(taskId);
         if (checklist == null)

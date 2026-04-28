@@ -13,7 +13,7 @@ public class GetChecklistByTaskIdQueryService
         _checklistRepository = checklistRepository;
     }
 
-    public async Task<Checklist?> Handle(string taskId)
+    public async Task<Checklist?> Handle(int taskId)
     {
         return await _checklistRepository.GetByTaskId(taskId);
     }

@@ -23,7 +23,7 @@ public class ChecklistRepository : IChecklistRepository
         return checklist.Id;
     }
 
-    public async Task<Checklist?> GetByTaskId(string taskId)
+    public async Task<Checklist?> GetByTaskId(int taskId)
     {
         return await _dbContext.Set<Checklist>().Include(c => c.Items).FirstOrDefaultAsync(x => x.TaskId == taskId);
     }

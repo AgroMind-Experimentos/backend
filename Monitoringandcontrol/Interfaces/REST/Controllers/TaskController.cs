@@ -28,7 +28,7 @@ public class TaskController : ControllerBase
     [SwaggerOperation(Summary = "Create a new task")]
     public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest request)
     {
-        var taskId = await _createTaskCommandService.Handle(request.Title, request.ResponsibleId);
+        var taskId = await _createTaskCommandService.Handle(request.Title, request.Description, request.CropId, request.ResponsibleId);
         var tasks = await _getTasksQueryService.Handle();
         var task = tasks.Find(t => t.Id == taskId);
         return CreatedAtAction(nameof(GetById), new {taskId}, TaskAssembler.ToCreatedResource(task!));

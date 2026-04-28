@@ -13,9 +13,9 @@ public class CreateTaskCommandService
         _taskRepository = taskRepository;
     }
 
-    public async Task<int> Handle(string title, string responsibleId)
+    public async Task<int> Handle(string title, string description, int cropId, int responsibleId)
     {
-        var task = new TaskAggregate(title, responsibleId);
+        var task = new TaskAggregate(title, description, cropId, responsibleId);
         return await _taskRepository.AddAsync(task);
     }
 }

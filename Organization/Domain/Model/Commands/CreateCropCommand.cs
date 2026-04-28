@@ -2,6 +2,8 @@
 
 public record CreateCropCommand(
     string Name,
-    string? Description,
+    string Location,
+    double Area,
+    string Cultivation,
     int OrganizationId
 );

@@ -1,4 +1,6 @@
-﻿namespace EcotrackPlatform.API.Iam.Interfaces.REST.Resources;
+﻿using EcotrackPlatform.API.Profile.Domain.Model.ValueObjects;
 
-public record RegisterResource(string Email, string Password, string DisplayName);
+namespace EcotrackPlatform.API.Iam.Interfaces.REST.Resources;
+
+public record RegisterResource(string Email, string Password, string DisplayName, UserRole Role);
 

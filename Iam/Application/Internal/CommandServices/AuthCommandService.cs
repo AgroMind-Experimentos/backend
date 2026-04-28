@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using EcotrackPlatform.API.Profile.Domain.Repositories;
 using EcotrackPlatform.API.Iam.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Iam.Domain.Repositories;
+using EcotrackPlatform.API.Profile.Domain.Model.ValueObjects;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
 // Alias para el agregado Profile
 using ProfileAgg = EcotrackPlatform.API.Profile.Domain.Model.Aggregates.Profile;
@@ -29,7 +30,7 @@ namespace EcotrackPlatform.API.Iam.Application.Internal.CommandServices
             _profiles = profiles; _sessions = sessions; _uow = uow; _config = config;
         }
 
-        public async Task<ProfileAgg?> RegisterAsync(string email, string password, string displayName)
+        public async Task<ProfileAgg?> RegisterAsync(string email, string password, string displayName, UserRole role)
         {
             // Validar que el email no esté en uso
             var existingUser = await _profiles.FindByEmailAsync(email);
@@ -42,11 +43,11 @@ namespace EcotrackPlatform.API.Iam.Application.Internal.CommandServices
             if (password.Length < 6) return null; // Password muy corto
 
             // Hashear la contraseña
-            var tempProfile = new ProfileAgg(email, displayName, "temp");
+            var tempProfile = new ProfileAgg(email, displayName, "temp", role);
             var passwordHash = _hasher.HashPassword(tempProfile, password);
 
             // Crear el perfil con el hash real
-            var profile = new ProfileAgg(email, displayName, passwordHash);
+            var profile = new ProfileAgg(email, displayName, passwordHash, role);
             await _profiles.AddAsync(profile);
             await _uow.CompleteAsync();
             

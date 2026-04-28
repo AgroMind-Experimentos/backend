@@ -1,4 +1,6 @@
+using EcotrackPlatform.API.Profile.Domain.Model.ValueObjects;
+
 namespace EcotrackPlatform.API.Profile.Domain.Model.Commands
 {
-    public record CreateProfileCommand(string Email, string DisplayName, string Password);
+    public record CreateProfileCommand(string Email, string DisplayName, string Password, UserRole Role);
 }

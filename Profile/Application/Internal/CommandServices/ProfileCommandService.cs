@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using EcotrackPlatform.API.Profile.Domain.Model.ValueObjects;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
 using EcotrackPlatform.API.Profile.Domain.Repositories;
 using Microsoft.AspNetCore.Identity;
@@ -20,7 +21,7 @@ namespace EcotrackPlatform.API.Profile.Application.Internal.CommandServices
             _uow = uow;
         }
 
-        public async Task<ProfileAgg> CreateAsync(string email, string displayName, string plainPassword)
+        public async Task<ProfileAgg> CreateAsync(string email, string displayName, string plainPassword, UserRole role)
         {
             var existing = await _profiles.FindByEmailAsync(email);
             if (existing is not null) throw new InvalidOperationException("Email already in use.");
@@ -29,7 +30,7 @@ namespace EcotrackPlatform.API.Profile.Application.Internal.CommandServices
             var hash = _hasher.HashPassword(null, plainPassword); // Generamos el hash de la contraseña
 
             // Ahora creamos el perfil pasando el hash generado
-            var profile = new ProfileAgg(email, displayName, hash); // Le pasamos el passwordHash correctamente
+            var profile = new ProfileAgg(email, displayName, hash, role); // Le pasamos el passwordHash correctamente
 
             // Añadimos el perfil a la base de datos
             await _profiles.AddAsync(profile);

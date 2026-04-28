@@ -6,21 +6,22 @@ using System.Collections.Generic;
 public class Checklist
 {
     public int Id { get; private set; }
-    public string TaskId { get; private set; }
+    public int TaskId { get; private set; }
     public string Title { get; private set; }
-    public List<ChecklistItem> Items { get; private set; }
+    
+    private readonly List<ChecklistItem> _items = new();
+    public IReadOnlyCollection<ChecklistItem> Items => _items.AsReadOnly();
     
     private Checklist(){}
 
-    public Checklist(string taskId, string title)
+    public Checklist(int taskId, string title)
     {
         TaskId = taskId;
         Title = title ?? throw new ArgumentNullException(nameof(title));
-        Items = new List<ChecklistItem>();
     }
 
     public void AddItem(string description)
     {
-        Items.Add(new ChecklistItem(description));
+        _items.Add(new ChecklistItem(description));
     }
 }

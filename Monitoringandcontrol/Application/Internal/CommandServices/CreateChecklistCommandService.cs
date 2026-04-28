@@ -14,7 +14,7 @@ public class CreateChecklistCommandService
         _checklistRepository = checklistRepository;
     }
 
-    public async Task<int> Handle(string taskId, string title, List<string> items)
+    public async Task<int> Handle(int taskId, string title, List<string> items)
     {
         var checklist = new Checklist(taskId, title);
         foreach (var desc in items)

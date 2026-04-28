@@ -68,7 +68,7 @@ namespace EcotrackPlatform.API.Profile.Interfaces.REST
         public async Task<IActionResult> Create([FromBody] CreateProfileResource resource)
         {
             var cmd = CreateProfileCommandFromResourceAssembler.ToCommand(resource);
-            var entity = await _commands.CreateAsync(cmd.Email, cmd.DisplayName, cmd.Password);
+            var entity = await _commands.CreateAsync(cmd.Email, cmd.DisplayName, cmd.Password, cmd.Role);
             var res = ProfileResourceFromEntityAssembler.ToResource(entity);
             return CreatedAtAction(nameof(GetById), new { id = res.Id }, res);
         }

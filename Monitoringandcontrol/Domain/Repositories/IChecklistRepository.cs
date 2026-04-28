@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 public interface IChecklistRepository
 {
     Task<int> AddAsync(Checklist checklist);
-    Task<Checklist?> GetByTaskId(string taskId);
+    Task<Checklist?> GetByTaskId(int taskId);
 }

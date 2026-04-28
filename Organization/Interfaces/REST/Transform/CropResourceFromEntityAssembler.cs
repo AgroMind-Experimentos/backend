@@ -10,7 +10,8 @@ public static class CropResourceFromEntityAssembler
         {
             Id = entity.Id,
             Name = entity.Name,
-            Description = entity.Description,
-            CreatedAt = entity.CreatedAt
+            Location = entity.Location,
+            Area = entity.Area,
+            Cultivation = entity.Cultivation,
         };
 }

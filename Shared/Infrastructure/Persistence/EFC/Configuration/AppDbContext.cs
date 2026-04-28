@@ -7,6 +7,7 @@ using EcotrackPlatform.API.Shared.Infrastructure.Persistence.EFC.Configuration.E
 
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.Entities;
+using EcotrackPlatform.API.Organization.Domain.Model.Entities;
 using MonitoringExtensions = EcotrackPlatform.API.Monitoringandcontrol.Infraestructure.Persistence.EFC.Extensions.ModelBuilderExtensions;
 using EcotrackPlatform.API.Report.Infrastructure.Persistence.EFC.Configuration.Extensions;
 using EntityFrameworkCore.CreatedUpdatedDate.Extensions;
@@ -42,6 +43,24 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            
+            builder.Entity<OrganizationMember>()
+                .HasKey(om => new { om.ProfileId, om.OrganizationId });
+
+            builder.Entity<OrganizationMember>()
+                .HasOne(om => om.Profile)
+                .WithMany(p => p.Memberships)
+                .HasForeignKey(om => om.ProfileId);
+
+            builder.Entity<OrganizationMember>()
+                .HasOne(om => om.Organization)
+                .WithMany(o => o.Members)
+                .HasForeignKey(om => om.OrganizationId);
+        
+            builder.Entity<ChecklistItem>()
+                .HasOne<Checklist>()
+                .WithMany(c => c.Items)
+                .HasForeignKey(ci => ci.ChecklistId);
 
             // Módulos por bounded context
             builder.AddProfileModule();

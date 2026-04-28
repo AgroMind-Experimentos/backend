@@ -15,7 +15,7 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterResource body)
     {
-        var profile = await _auth.RegisterAsync(body.Email, body.Password, body.DisplayName);
+        var profile = await _auth.RegisterAsync(body.Email, body.Password, body.DisplayName, body.Role);
         
         if (profile is null) 
             return BadRequest(new { message = "Email already in use or invalid data. Password must be at least 6 characters." });

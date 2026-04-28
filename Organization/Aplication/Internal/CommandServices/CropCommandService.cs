@@ -13,13 +13,12 @@ public class CropCommandService(
 {
     public async Task<Crop> Handle(CreateCropCommand command)
     {
-        var crop = new Crop
-        {
-            Name = command.Name,
-            Description = command.Description,
-            OrganizationId = command.OrganizationId,
-            CreatedAt = DateTime.UtcNow
-        };
+        Crop crop = new Crop(
+            command.Name,
+            command.Location,
+            command.Area,
+            command.Cultivation,
+            command.OrganizationId);
 
         await cropRepository.AddAsync(crop);
         await unitOfWork.CompleteAsync();
