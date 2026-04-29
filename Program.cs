@@ -1,6 +1,9 @@
+using System.Text;
 using EcotrackPlatform.API.Iam.Application.Internal.CommandServices;
 using EcotrackPlatform.API.Iam.Domain.Repositories;
+using EcotrackPlatform.API.Iam.Domain.Services;
 using EcotrackPlatform.API.Iam.Infrastructure.Repositories;
+using EcotrackPlatform.API.Iam.Infrastructure.Tokens;
 using EcotrackPlatform.API.Monitoringandcontrol.Application.Internal.CommandServices;
 using EcotrackPlatform.API.Monitoringandcontrol.Application.Internal.QueryServices;
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Repositories;
@@ -13,12 +16,12 @@ using EcotrackPlatform.API.Shared.Domain.Repositories;
 using EcotrackPlatform.API.Shared.Infrastructure.Interfaces.ASP.Configuration;
 using EcotrackPlatform.API.Shared.Infrastructure.Persistence.EFC.Configuration;
 using EcotrackPlatform.API.Shared.Infrastructure.Persistence.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 // Add Configuration for Routing
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
@@ -34,15 +37,7 @@ builder.Services.AddControllers(options =>
 });
 
 // Add Database Connection
-
-var host = Environment.GetEnvironmentVariable("ECOTRACK_DB_HOST");
-var port = Environment.GetEnvironmentVariable("ECOTRACK_DB_PORT");
-var db_ecotrack = Environment.GetEnvironmentVariable("ECOTRACK_DB_NAME");
-var user = Environment.GetEnvironmentVariable("ECOTRACK_DB_USER");
-var pass = Environment.GetEnvironmentVariable("ECOTRACK_DB_PASSWORD");
-
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    //$"Server={host};Port={port};Database={db_ecotrack};User Id={user};Password={pass};SslMode=Preferred;AllowPublicKeyRetrieval=True;Pooling=True;";
 
 // Add CORS Policy
 builder.Services.AddCors(options =>
@@ -71,6 +66,24 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     }
 });
 
+// Configure JWT Authentication
+var jwtKey = builder.Configuration["Jwt:Key"]!;
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+builder.Services.AddAuthorization();
+
 // Configure Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -82,17 +95,38 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "Backend RESTful API for Agromind Ecotrack"
     });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your JWT token. Example: Bearer {token}"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
-//Dependency Injection
+// Dependency Injection
 
-//Shared Bounded Context
+// Shared Bounded Context
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-//Monitoring And Control Bounded Context
+// Monitoring And Control Bounded Context
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<IChecklistRepository, ChecklistRepository>();
-builder.Services.AddScoped<ILogbookRepository,  LogbookRepository>();
+builder.Services.AddScoped<ILogbookRepository, LogbookRepository>();
 builder.Services.AddScoped<CreateTaskCommandService>();
 builder.Services.AddScoped<CreateChecklistCommandService>();
 builder.Services.AddScoped<UpdateTaskStatusCommandService>();
@@ -101,37 +135,37 @@ builder.Services.AddScoped<GetChecklistByTaskIdQueryService>();
 builder.Services.AddScoped<CreateLogbookCommandService>();
 builder.Services.AddScoped<GetLogbookQueryService>();
 
-//Report Bounded Context
+// Report Bounded Context
 builder.Services.AddScoped<EcotrackPlatform.API.Report.Application.Internal.QueryServices.ReportQueryService>();
 builder.Services.AddScoped<EcotrackPlatform.API.Report.Infrastructure.Services.PdfReportGeneratorService>();
 
-builder.Services.AddScoped<EcotrackPlatform.API.Organization.Domain.Repositories.IOrganizationRepository, 
+builder.Services.AddScoped<EcotrackPlatform.API.Organization.Domain.Repositories.IOrganizationRepository,
     EcotrackPlatform.API.Organization.Infrastructure.Repositories.OrganizationRepository>();
-builder.Services.AddScoped<EcotrackPlatform.API.Organization.Domain.Repositories.ICropRepository, 
+builder.Services.AddScoped<EcotrackPlatform.API.Organization.Domain.Repositories.ICropRepository,
     EcotrackPlatform.API.Organization.Infrastructure.Repositories.CropRepository>();
 
 // Organization Context - Services
-builder.Services.AddScoped<EcotrackPlatform.API.Organization.Aplication.Services.IOrganizationCommandService, 
+builder.Services.AddScoped<EcotrackPlatform.API.Organization.Aplication.Services.IOrganizationCommandService,
     EcotrackPlatform.API.Organization.Aplication.Internal.CommandServices.OrganizationCommandService>();
-builder.Services.AddScoped<EcotrackPlatform.API.Organization.Aplication.Services.IOrganizationQueryService, 
+builder.Services.AddScoped<EcotrackPlatform.API.Organization.Aplication.Services.IOrganizationQueryService,
     EcotrackPlatform.API.Organization.Aplication.Internal.QueryServices.OrganizationQueryService>();
-builder.Services.AddScoped<EcotrackPlatform.API.Organization.Aplication.Services.ICropCommandService, 
+builder.Services.AddScoped<EcotrackPlatform.API.Organization.Aplication.Services.ICropCommandService,
     EcotrackPlatform.API.Organization.Aplication.Internal.CommandServices.CropCommandService>();
-builder.Services.AddScoped<EcotrackPlatform.API.Organization.Aplication.Services.ICropQueryService, 
+builder.Services.AddScoped<EcotrackPlatform.API.Organization.Aplication.Services.ICropQueryService,
     EcotrackPlatform.API.Organization.Aplication.Internal.QueryServices.CropQueryService>();
 
 // IAM Bounded Context
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<AuthCommandService>();
 builder.Services.AddScoped<IAuthSessionRepository, AuthSessionRepository>();
-builder.Services.AddScoped<IProfileRepository, ProfileRepository>();  // Si aún no está registrado
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 
-
+// Profile Bounded Context
 builder.Services.AddScoped<ProfileQueryService>();
 builder.Services.AddScoped<ProfileCommandService>();
-builder.Services.AddScoped<IProfileSettingsRepository, ProfileSettingsRepository>(); 
-builder.Services.AddScoped<SettingsQueryService>();  // Agrega esta línea
-builder.Services.AddScoped<SettingsCommandService>();  // Registra el servicio SettingsCommandService
-
+builder.Services.AddScoped<IProfileSettingsRepository, ProfileSettingsRepository>();
+builder.Services.AddScoped<SettingsQueryService>();
+builder.Services.AddScoped<SettingsCommandService>();
 
 var app = builder.Build();
 
@@ -155,8 +189,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 // Map controllers
 app.MapControllers();
 
 app.Run();
-

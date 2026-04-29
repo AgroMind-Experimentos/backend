@@ -22,12 +22,33 @@ public class OrganizationsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateOrganizationResource resource)
     {
-        var command = CreateOrganizationCommandFromResourceAssembler.ToCommand(resource);
-        var result = await _commandService.Handle(command);
+        try
+        {
+            var command = CreateOrganizationCommandFromResourceAssembler.ToCommand(resource);
+            var result = await _commandService.Handle(command);
+            var resourceResult = OrganizationResourceFromEntityAssembler.ToResource(result);
+            return CreatedAtAction(nameof(GetById), new { id = resourceResult.Id }, resourceResult);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 
-        var resourceResult = OrganizationResourceFromEntityAssembler.ToResource(result);
+    [HttpPatch("{id:int}")]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateOrganizationResource resource)
+    {
+        try
+        {
+            var updated = await _commandService.UpdateAsync(id, resource.Name, resource.Description, resource.Status, resource.MemberIds);
+            if (updated is null) return NotFound();
 
-        return Ok(resourceResult);
+            return Ok(OrganizationResourceFromEntityAssembler.ToResource(updated));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpGet]

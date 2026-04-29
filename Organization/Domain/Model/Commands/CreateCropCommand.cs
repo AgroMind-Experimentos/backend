@@ -5,5 +5,6 @@ public record CreateCropCommand(
     string Location,
     double Area,
     string Cultivation,
-    int OrganizationId
+    int OrganizationId,
+    List<int>? MemberIds = null
 );

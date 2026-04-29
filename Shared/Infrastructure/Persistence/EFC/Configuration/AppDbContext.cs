@@ -3,14 +3,12 @@ using EcotrackPlatform.API.Shared.Infrastructure.Persistence.EFC.Configuration.E
 using EntityFrameworkCore.CreatedUpdatedDate.Extensions;
 using Microsoft.EntityFrameworkCore;
 using EcotrackPlatform.API.Profile.Infrastructure.Persistence.EFC.Configuration.Extensions;
-using EcotrackPlatform.API.Shared.Infrastructure.Persistence.EFC.Configuration.Extensions;
 
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.Entities;
 using EcotrackPlatform.API.Organization.Domain.Model.Entities;
 using MonitoringExtensions = EcotrackPlatform.API.Monitoringandcontrol.Infraestructure.Persistence.EFC.Extensions.ModelBuilderExtensions;
 using EcotrackPlatform.API.Report.Infrastructure.Persistence.EFC.Configuration.Extensions;
-using EntityFrameworkCore.CreatedUpdatedDate.Extensions;
 
 namespace EcotrackPlatform.API.Shared.Infrastructure.Persistence.EFC.Configuration;
 
@@ -22,6 +20,8 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<Logbook> Logbooks { get; set; }
     public DbSet<Organization.Domain.Model.Aggregates.Organization> Organizations { get; set; }
     public DbSet<Crop> Crops { get; set; }
+    public DbSet<OrganizationMember> OrganizationMembers { get; set; }
+    public DbSet<CropMember> CropMembers { get; set; }
 
     // Report Module
     public DbSet<EcotrackPlatform.API.Report.Domain.Model.Report> Reports { get; set; }
@@ -56,6 +56,19 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
                 .HasOne(om => om.Organization)
                 .WithMany(o => o.Members)
                 .HasForeignKey(om => om.OrganizationId);
+
+            builder.Entity<CropMember>()
+                .HasKey(cm => new { cm.ProfileId, cm.CropId });
+
+            builder.Entity<CropMember>()
+                .HasOne(cm => cm.Profile)
+                .WithMany()
+                .HasForeignKey(cm => cm.ProfileId);
+
+            builder.Entity<Crop>()
+                .HasMany(c => c.Members)
+                .WithOne(cm => cm.Crop)
+                .HasForeignKey(cm => cm.CropId);
         
             builder.Entity<ChecklistItem>()
                 .HasOne<Checklist>()

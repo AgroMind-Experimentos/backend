@@ -6,5 +6,5 @@ namespace EcotrackPlatform.API.Organization.Interfaces.REST.Transform;
 public static class CreateCropCommandFromResourceAssembler
 {
     public static CreateCropCommand ToCommand(CreateCropResource resource) =>
-        new(resource.Name, resource.Location, resource.Area, resource.Cultivation, resource.OrganizationId);
+    new(resource.Name, resource.Location, resource.Area, resource.Cultivation, resource.OrganizationId, resource.MemberIds);
 }

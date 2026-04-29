@@ -3,6 +3,7 @@
 public record CreateOrganizationCommand(
     string Name,
     string Description,
-    string Status
+    string Status,
+    List<int>? MemberIds = null
 );
 

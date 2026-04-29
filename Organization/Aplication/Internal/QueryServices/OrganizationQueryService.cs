@@ -8,12 +8,12 @@ public class OrganizationQueryService(IOrganizationRepository organizationReposi
 {
     public async Task<Domain.Model.Aggregates.Organization?> Handle(GetOrganizationByIdQuery query)
     {
-        return await organizationRepository.FindByIdAsync(query.Id);
+        return await organizationRepository.FindByIdWithMembersAsync(query.Id);
     }
 
     public async Task<IEnumerable<Domain.Model.Aggregates.Organization>> Handle(GetAllOrganizationsQuery query)
     {
-        return await organizationRepository.ListAsync();
+        return await organizationRepository.ListWithMembersAsync();
     }
 }
 

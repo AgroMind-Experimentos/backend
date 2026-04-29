@@ -13,11 +13,20 @@ public class CropRepository(AppDbContext context) : ICropRepository
     public async Task<Crop?> FindByIdAsync(int id) =>
         await context.Crops.FindAsync(id);
 
+    public async Task<Crop?> FindByIdWithMembersAsync(int id) =>
+        await context.Crops.Include(crop => crop.Members).FirstOrDefaultAsync(crop => crop.Id == id);
+
     public async Task<IEnumerable<Crop>> ListAsync() =>
         await context.Crops.ToListAsync();
 
+    public async Task<IEnumerable<Crop>> ListWithMembersAsync() =>
+        await context.Crops.Include(crop => crop.Members).ToListAsync();
+
     public async Task<IEnumerable<Crop>> FindByOrganizationIdAsync(int organizationId) =>
         await context.Crops.Where(c => c.OrganizationId == organizationId).ToListAsync();
+
+    public async Task<IEnumerable<Crop>> FindByOrganizationIdWithMembersAsync(int organizationId) =>
+        await context.Crops.Include(crop => crop.Members).Where(c => c.OrganizationId == organizationId).ToListAsync();
 
     public void Remove(Crop entity) => context.Crops.Remove(entity);
 

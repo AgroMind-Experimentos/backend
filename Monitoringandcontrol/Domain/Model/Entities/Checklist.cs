@@ -10,7 +10,7 @@ public class Checklist
     public string Title { get; private set; }
     
     private readonly List<ChecklistItem> _items = new();
-    public IReadOnlyCollection<ChecklistItem> Items => _items.AsReadOnly();
+    public List<ChecklistItem> Items => _items;
     
     private Checklist(){}
 

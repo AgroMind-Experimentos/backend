@@ -9,17 +9,17 @@ public class CropQueryService(ICropRepository cropRepository) : ICropQueryServic
 {
     public async Task<Crop?> Handle(GetCropByIdQuery query)
     {
-        return await cropRepository.FindByIdAsync(query.Id);
+        return await cropRepository.FindByIdWithMembersAsync(query.Id);
     }
 
     public async Task<IEnumerable<Crop>> Handle(GetAllCropsQuery query)
     {
-        return await cropRepository.ListAsync();
+        return await cropRepository.ListWithMembersAsync();
     }
 
     public async Task<IEnumerable<Crop>> Handle(GetAllCropsByOrganizationIdQuery query)
     {
-        return await cropRepository.FindByOrganizationIdAsync(query.OrganizationId);
+        return await cropRepository.FindByOrganizationIdWithMembersAsync(query.OrganizationId);
     }
 }
 

@@ -114,3 +114,7 @@ Backup*/
 UpgradeLog*.XML
 UpgradeLog*.htm
 ServiceFabricBackup/
+
+# AI Mardown
+
+CLAUDE.md

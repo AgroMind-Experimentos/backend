@@ -11,10 +11,10 @@ public class Organization
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
     
     private readonly List<OrganizationMember> _members = new();
-    public IReadOnlyCollection<OrganizationMember> Members => _members.AsReadOnly();
+    public List<OrganizationMember> Members => _members;
     
     private readonly List<Crop> _crops = new();
-    public IReadOnlyCollection<Crop> Crops => _crops.AsReadOnly();
+    public List<Crop> Crops => _crops;
     
     protected Organization() { }
     
@@ -32,4 +32,16 @@ public class Organization
         Description = description.Trim();
         Status = status.Trim();
     }
+
+    public void SyncMembers(IEnumerable<int> profileIds)
+    {
+        _members.Clear();
+
+        foreach (var profileId in profileIds.Distinct())
+        {
+            _members.Add(new OrganizationMember(profileId, Id));
+        }
+    }
+
+    public bool HasMember(int profileId) => _members.Any(member => member.ProfileId == profileId);
 }

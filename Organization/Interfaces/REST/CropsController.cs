@@ -23,13 +23,33 @@ public class CropsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateCropResource resource)
     {
-        var command = CreateCropCommandFromResourceAssembler.ToCommand(resource);
-        
-        Crop result = await _commandService.Handle(command);
+        try
+        {
+            var command = CreateCropCommandFromResourceAssembler.ToCommand(resource);
+            Crop result = await _commandService.Handle(command);
+            var resourceResult = CropResourceFromEntityAssembler.ToResource(result);
+            return CreatedAtAction(nameof(GetById), new { id = resourceResult.Id }, resourceResult);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 
-        var resourceResult = CropResourceFromEntityAssembler.ToResource(result);
+    [HttpPatch("{id:int}")]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCropResource resource)
+    {
+        try
+        {
+            var updated = await _commandService.UpdateAsync(id, resource.Name, resource.Location, resource.Area, resource.Cultivation, resource.MemberIds);
+            if (updated is null) return NotFound();
 
-        return Ok(resourceResult);
+            return Ok(CropResourceFromEntityAssembler.ToResource(updated));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpGet]

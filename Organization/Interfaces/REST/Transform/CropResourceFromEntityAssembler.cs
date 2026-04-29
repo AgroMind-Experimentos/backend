@@ -13,5 +13,7 @@ public static class CropResourceFromEntityAssembler
             Location = entity.Location,
             Area = entity.Area,
             Cultivation = entity.Cultivation,
+            CreatedAt = entity.CreatedAt,
+            MemberIds = entity.Members.Select(member => member.ProfileId).ToList()
         };
 }

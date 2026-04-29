@@ -13,7 +13,7 @@ namespace EcotrackPlatform.API.Profile.Domain.Model.Aggregates
         public UserRole Role { get; private set; }
         
         private readonly List<OrganizationMember> _memberships = new();
-        public IReadOnlyCollection<OrganizationMember> Memberships => _memberships.AsReadOnly();
+        public List<OrganizationMember> Memberships => _memberships;
 
         protected Profile() { } // EF
 

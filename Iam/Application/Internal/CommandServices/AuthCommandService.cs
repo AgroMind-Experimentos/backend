@@ -1,82 +1,78 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using System.Threading.Tasks;
 using EcotrackPlatform.API.Profile.Domain.Repositories;
 using EcotrackPlatform.API.Iam.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Iam.Domain.Repositories;
+using EcotrackPlatform.API.Iam.Domain.Services;
 using EcotrackPlatform.API.Profile.Domain.Model.ValueObjects;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
-// Alias para el agregado Profile
 using ProfileAgg = EcotrackPlatform.API.Profile.Domain.Model.Aggregates.Profile;
 
-namespace EcotrackPlatform.API.Iam.Application.Internal.CommandServices
+namespace EcotrackPlatform.API.Iam.Application.Internal.CommandServices;
+
+public record LoginResult(AuthSession Session, string Token);
+
+public class AuthCommandService
 {
-    public class AuthCommandService
+    private readonly IProfileRepository _profiles;
+    private readonly IAuthSessionRepository _sessions;
+    private readonly IUnitOfWork _uow;
+    private readonly ITokenService _tokenService;
+    private readonly PasswordHasher<ProfileAgg> _hasher = new();
+
+    public AuthCommandService(
+        IProfileRepository profiles,
+        IAuthSessionRepository sessions,
+        IUnitOfWork uow,
+        ITokenService tokenService)
     {
-        private readonly IProfileRepository _profiles;
-        private readonly IAuthSessionRepository _sessions;
-        private readonly IUnitOfWork _uow;
-        private readonly IConfiguration _config;
+        _profiles = profiles;
+        _sessions = sessions;
+        _uow = uow;
+        _tokenService = tokenService;
+    }
 
-        // hasher tipado al alias
-        private readonly PasswordHasher<ProfileAgg> _hasher = new();
+    public async Task<ProfileAgg?> RegisterAsync(string email, string password, string displayName, UserRole role)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(displayName))
+            return null;
 
-        public AuthCommandService(
-            IProfileRepository profiles,
-            IAuthSessionRepository sessions,
-            IUnitOfWork uow,
-            IConfiguration config)
-        {
-            _profiles = profiles; _sessions = sessions; _uow = uow; _config = config;
-        }
+        if (password.Length < 6) return null;
 
-        public async Task<ProfileAgg?> RegisterAsync(string email, string password, string displayName, UserRole role)
-        {
-            // Validar que el email no esté en uso
-            var existingUser = await _profiles.FindByEmailAsync(email);
-            if (existingUser is not null) return null; // Email ya registrado
+        var existing = await _profiles.FindByEmailAsync(email);
+        if (existing is not null) return null;
 
-            // Validaciones básicas
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(displayName))
-                return null;
+        var temp = new ProfileAgg(email, displayName, "temp", role);
+        var hash = _hasher.HashPassword(temp, password);
 
-            if (password.Length < 6) return null; // Password muy corto
+        var profile = new ProfileAgg(email, displayName, hash, role);
+        await _profiles.AddAsync(profile);
+        await _uow.CompleteAsync();
+        return profile;
+    }
 
-            // Hashear la contraseña
-            var tempProfile = new ProfileAgg(email, displayName, "temp", role);
-            var passwordHash = _hasher.HashPassword(tempProfile, password);
+    public async Task<LoginResult?> LoginAsync(string email, string password, string? ua, string? ip)
+    {
+        var user = await _profiles.FindByEmailAsync(email);
+        if (user is null) return null;
 
-            // Crear el perfil con el hash real
-            var profile = new ProfileAgg(email, displayName, passwordHash, role);
-            await _profiles.AddAsync(profile);
-            await _uow.CompleteAsync();
-            
-            return profile;
-        }
+        var result = _hasher.VerifyHashedPassword(user, user.PasswordHash, password);
+        if (result == PasswordVerificationResult.Failed) return null;
 
-        public async Task<AuthSession?> LoginAsync(string email, string password, string? ua, string? ip)
-        {
-            var user = await _profiles.FindByEmailAsync(email);
-            if (user is null) return null;
+        var session = new AuthSession(user.Id, TimeSpan.FromHours(8), ua, ip);
+        await _sessions.AddAsync(session);
+        await _uow.CompleteAsync();
 
-            var result = _hasher.VerifyHashedPassword(user, user.PasswordHash, password);
-            if (result == PasswordVerificationResult.Failed) return null;
+        var token = _tokenService.GenerateToken(user);
+        return new LoginResult(session, token);
+    }
 
-            var hours = _config.GetValue<int?>("Session:TtlHours") ?? 8;
-            var session = new AuthSession(user.Id, TimeSpan.FromHours(hours), ua, ip);
-            await _sessions.AddAsync(session);
-            await _uow.CompleteAsync();
-            return session;
-        }
-
-        public async Task<bool> LogoutAsync(Guid sessionId)
-        {
-            var s = await _sessions.FindByIdAsync(sessionId);
-            if (s is null || !s.IsActive()) return false;
-            s.Revoke();
-            _sessions.Update(s);
-            await _uow.CompleteAsync();
-            return true;
-        }
+    public async Task<bool> LogoutAsync(Guid sessionId)
+    {
+        var s = await _sessions.FindByIdAsync(sessionId);
+        if (s is null || !s.IsActive()) return false;
+        s.Revoke();
+        _sessions.Update(s);
+        await _uow.CompleteAsync();
+        return true;
     }
 }
