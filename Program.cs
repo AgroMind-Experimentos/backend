@@ -14,6 +14,7 @@ using EcotrackPlatform.API.Profile.Domain.Repositories;
 using EcotrackPlatform.API.Profile.Infrastructure.Repositories;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
 using EcotrackPlatform.API.Shared.Infrastructure.Interfaces.ASP.Configuration;
+using EcotrackPlatform.API.Shared.Infrastructure.Persistence.Connection;
 using EcotrackPlatform.API.Shared.Infrastructure.Persistence.EFC.Configuration;
 using EcotrackPlatform.API.Shared.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,7 +22,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
+// Setup builder reading environment variables and inline args
 var builder = WebApplication.CreateBuilder(args);
+
+// Secure Database Connection String
+var connectionString = DbConnectionStringLoader.GetConnectionString(builder.Environment.IsProduction());
 
 // Add Configuration for Routing
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
@@ -35,9 +40,6 @@ builder.Services.AddControllers(options =>
 {
     options.SuppressConsumesConstraintForFormFileParameters = true;
 });
-
-// Add Database Connection
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // Add CORS Policy
 builder.Services.AddCors(options =>

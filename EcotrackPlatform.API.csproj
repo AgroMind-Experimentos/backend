@@ -24,6 +24,7 @@
     <ItemGroup>
       <Folder Include="Shared\Application\" />
       <Folder Include="Shared\Domain\Model\ValueObjects\" />
+      <Folder Include="Shared\Infrastructure\Configuration\" />
     </ItemGroup>
 
 </Project>
