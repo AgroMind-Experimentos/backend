@@ -11,8 +11,9 @@ public static class DbConnectionStringLoader
     private static string GetRequiredEnvVar(string variableName)
     {
         var value = Environment.GetEnvironmentVariable(variableName);
+
         return string.IsNullOrWhiteSpace(value) 
-            ? throw new ArgumentNullException(variableName, $"...") 
+            ? throw new InvalidOperationException($"CRITICAL CONFIGURATION MISSING: Environment variable '{variableName}' is not set.")
             : value;
     }
 

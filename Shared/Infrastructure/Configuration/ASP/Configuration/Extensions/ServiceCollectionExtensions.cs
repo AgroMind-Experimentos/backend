@@ -58,24 +58,32 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddDatabaseConfiguration(this IServiceCollection services, IWebHostEnvironment environment)
     {
-        var connectionString = DbConnectionStringLoader.GetConnectionString(environment.IsProduction());
-
-        services.AddDbContext<AppDbContext>(options =>
+        try 
         {
-            if (environment.IsDevelopment())
+            var connectionString = DbConnectionStringLoader.GetConnectionString(environment.IsProduction());
+
+            services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseMySQL(connectionString)
-                    .LogTo(Console.WriteLine, LogLevel.Information)
-                    .EnableDetailedErrors()
-                    .EnableSensitiveDataLogging();
-            }
-            else if (environment.IsProduction())
-            {
-                options.UseMySQL(connectionString)
-                    .LogTo(Console.WriteLine, LogLevel.Error)
-                    .EnableDetailedErrors();
-            }
-        });
+                options.UseMySQL(connectionString);
+
+                if (environment.IsDevelopment())
+                {
+                    options.LogTo(Console.WriteLine, LogLevel.Information)
+                        .EnableDetailedErrors()
+                        .EnableSensitiveDataLogging();
+                }
+                else
+                {
+                    options.LogTo(Console.WriteLine, LogLevel.Error)
+                        .EnableDetailedErrors();
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[FATAL] Failed to configure Database: {ex.Message}");
+            throw;
+        }
 
         return services;
     }
