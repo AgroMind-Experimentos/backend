@@ -7,23 +7,21 @@ public static class JwtAuthConfigurationLoader
     private const string EnvSecretKey = "JWT_SECRET";
     private const string ConfigIssuer = "Jwt:Issuer";
     private const string ConfigAudience = "Jwt:Audience";
-    private static readonly string[] AllConfigJsonVars = { ConfigIssuer, ConfigAudience };
+
+    private static string GetRequiredConfigurationVar(IConfiguration configuration, string key)
+    {
+        var value = configuration[key];
+        return string.IsNullOrWhiteSpace(value)
+            ? throw new InvalidOperationException($"CRITICAL CONFIGURATION MISSING: Configuration variable '{key}' is not set.")
+            : value;
+    }
 
     public static JwtAuthConfiguration Load(IConfiguration configuration)
     {
-        var secret = EnvVarUtils.GetRequiredEnvVar(EnvSecretKey);
-
-        var issuer = configuration[ConfigIssuer];
-        var audience = configuration[ConfigAudience];
-        
-        foreach (var key in AllConfigJsonVars)
-        {
-            if (string.IsNullOrWhiteSpace(configuration[key]))
-            {
-                throw new InvalidOperationException($"CRITICAL CONFIGURATION MISSING: '{key}' is not set in configuration.");
-            }
-        }
-
-        return new JwtAuthConfiguration(secret, issuer!, audience!);
+        return new JwtAuthConfiguration(
+            EnvVarUtils.GetRequiredEnvVar(EnvSecretKey),
+            GetRequiredConfigurationVar(configuration, ConfigIssuer),
+            GetRequiredConfigurationVar(configuration, ConfigAudience)
+        );
     }
 }
