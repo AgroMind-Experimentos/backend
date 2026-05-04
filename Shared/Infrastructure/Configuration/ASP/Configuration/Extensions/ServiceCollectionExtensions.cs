@@ -17,6 +17,7 @@ using EcotrackPlatform.API.Shared.Infrastructure.Interfaces.ASP.Configuration;
 using EcotrackPlatform.API.Shared.Infrastructure.Persistence.Connection;
 using EcotrackPlatform.API.Shared.Infrastructure.Persistence.EFC.Configuration;
 using EcotrackPlatform.API.Shared.Infrastructure.Persistence.Repositories;
+using EcotrackPlatform.API.Shared.Infrastructure.Security.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -90,7 +91,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        var jwtKey = configuration["Jwt:Key"];
+        var jwtConfiguration = JwtAuthConfigurationLoader.Load(configuration);
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -101,9 +102,9 @@ public static class ServiceCollectionExtensions
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["Jwt:Issuer"],
-                    ValidAudience = configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                    ValidIssuer = jwtConfiguration.Issuer,
+                    ValidAudience = jwtConfiguration.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfiguration.SecretKey))
                 };
             });
         services.AddAuthorization();
