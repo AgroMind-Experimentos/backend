@@ -15,16 +15,20 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterResource body)
     {
-        var profile = await _auth.RegisterAsync(body.Email, body.Password, body.DisplayName, body.Role);
-        if (profile is null)
-            return BadRequest(new { message = "Email already in use or invalid data. Password must be at least 6 characters." });
+        var result = await _auth.RegisterAsync(body.Email, body.Password, body.DisplayName, body.Role);
+
+        if (result.EmailConflict)
+            return Conflict(new { message = "Email is already in use." });
+
+        if (result.Profile is null)
+            return BadRequest(new { message = "Invalid data. Password must be at least 6 characters." });
 
         return Ok(new
         {
             message = "Registration successful. You can now log in.",
-            userId = profile.Id,
-            email = profile.Email,
-            displayName = profile.DisplayName
+            userId = result.Profile.Id,
+            email = result.Profile.Email,
+            displayName = result.Profile.DisplayName
         });
     }
 
@@ -41,7 +45,9 @@ public class AuthController : ControllerBase
         {
             token = result.Token,
             expiresAt = result.Session.ExpiresAt,
-            userId = result.Session.ProfileId
+            userId = result.Session.ProfileId,
+            role = result.User.Role.ToString(),
+            displayName = result.User.DisplayName
         });
     }
 

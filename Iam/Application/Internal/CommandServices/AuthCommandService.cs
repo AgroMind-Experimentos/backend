@@ -9,7 +9,9 @@ using ProfileAgg = EcotrackPlatform.API.Profile.Domain.Model.Aggregates.Profile;
 
 namespace EcotrackPlatform.API.Iam.Application.Internal.CommandServices;
 
-public record LoginResult(AuthSession Session, string Token);
+public record LoginResult(AuthSession Session, string Token, ProfileAgg User);
+
+public record RegisterResult(ProfileAgg? Profile, bool EmailConflict = false);
 
 public class AuthCommandService
 {
@@ -31,15 +33,15 @@ public class AuthCommandService
         _tokenService = tokenService;
     }
 
-    public async Task<ProfileAgg?> RegisterAsync(string email, string password, string displayName, UserRole role)
+    public async Task<RegisterResult> RegisterAsync(string email, string password, string displayName, UserRole role)
     {
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(displayName))
-            return null;
+            return new RegisterResult(null);
 
-        if (password.Length < 6) return null;
+        if (password.Length < 6) return new RegisterResult(null);
 
         var existing = await _profiles.FindByEmailAsync(email);
-        if (existing is not null) return null;
+        if (existing is not null) return new RegisterResult(null, EmailConflict: true);
 
         var temp = new ProfileAgg(email, displayName, "temp", role);
         var hash = _hasher.HashPassword(temp, password);
@@ -47,7 +49,7 @@ public class AuthCommandService
         var profile = new ProfileAgg(email, displayName, hash, role);
         await _profiles.AddAsync(profile);
         await _uow.CompleteAsync();
-        return profile;
+        return new RegisterResult(profile);
     }
 
     public async Task<LoginResult?> LoginAsync(string email, string password, string? ua, string? ip)
@@ -63,7 +65,7 @@ public class AuthCommandService
         await _uow.CompleteAsync();
 
         var token = _tokenService.GenerateToken(user);
-        return new LoginResult(session, token);
+        return new LoginResult(session, token, user);
     }
 
     public async Task<bool> LogoutAsync(Guid sessionId)

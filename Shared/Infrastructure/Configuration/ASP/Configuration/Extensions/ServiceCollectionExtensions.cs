@@ -35,6 +35,10 @@ public static class ServiceCollectionExtensions
             options.Conventions.Add(new KebabCaseRouteNamingConvention());
             options.RespectBrowserAcceptHeader = true;
         })
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        })
         .AddXmlSerializerFormatters()
         .ConfigureApiBehaviorOptions(options =>
         {
