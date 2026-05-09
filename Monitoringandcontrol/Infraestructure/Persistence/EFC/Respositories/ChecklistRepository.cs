@@ -43,6 +43,17 @@ public class ChecklistRepository : IChecklistRepository
         await _dbContext.SaveChangesAsync();
     }
 
+    public async Task<ChecklistItem?> GetItemByIdAsync(int id)
+    {
+        return await _dbContext.Set<ChecklistItem>().FindAsync(id);
+    }
+
+    public async Task UpdateItemAsync(ChecklistItem item)
+    {
+        _dbContext.Set<ChecklistItem>().Update(item);
+        await _dbContext.SaveChangesAsync();
+    }
+
     public async Task UpdateItemsAsync(int checklistId, List<string> descriptions)
     {
         var checklist = await _dbContext.Set<Checklist>().Include(c => c.Items).FirstOrDefaultAsync(x => x.Id == checklistId);

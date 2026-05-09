@@ -11,4 +11,6 @@ public interface IChecklistRepository
     Task<Checklist?> GetByTaskId(int taskId);
     Task RemoveByTaskIdAsync(int taskId);
     Task UpdateItemsAsync(int checklistId, List<string> descriptions);
+    Task<ChecklistItem?> GetItemByIdAsync(int id);
+    Task UpdateItemAsync(ChecklistItem item);
 }

@@ -19,14 +19,17 @@ public class ChecklistController : ControllerBase
 {
     private readonly CreateChecklistCommandService _createChecklistCommandService;
     private readonly UpdateChecklistCommandService _updateChecklistCommandService;
+    private readonly UpdateChecklistItemCommandService _updateChecklistItemCommandService;
     private readonly GetChecklistByTaskIdQueryService _getChecklistByTaskIdQueryService;
 
     public ChecklistController(CreateChecklistCommandService createChecklistCommandService,
         UpdateChecklistCommandService updateChecklistCommandService,
+        UpdateChecklistItemCommandService updateChecklistItemCommandService,
         GetChecklistByTaskIdQueryService getChecklistByTaskIdQueryService)
     {
         _createChecklistCommandService = createChecklistCommandService;
         _updateChecklistCommandService = updateChecklistCommandService;
+        _updateChecklistItemCommandService = updateChecklistItemCommandService;
         _getChecklistByTaskIdQueryService = getChecklistByTaskIdQueryService;
     }
 
@@ -49,6 +52,21 @@ public class ChecklistController : ControllerBase
             return Ok(new { message = "Checklist not found" });
         }
         return Ok(ChecklistAssembler.ToResource(checklist));
+    }
+
+    [HttpPatch("items/{itemId:int}")]
+    [SwaggerOperation(Summary = "Mark or unmark a checklist item as completed")]
+    public async Task<IActionResult> UpdateItemCompletion(int itemId, [FromBody] UpdateChecklistItemRequest request)
+    {
+        try
+        {
+            await _updateChecklistItemCommandService.Handle(itemId, request.IsCompleted);
+            return Ok(new { message = "Item updated" });
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Item not found" });
+        }
     }
 
     [HttpPut("{id:int}")]
