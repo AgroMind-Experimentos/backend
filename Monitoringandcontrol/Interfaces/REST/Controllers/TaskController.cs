@@ -15,13 +15,17 @@ public class TaskController : ControllerBase
     private readonly CreateTaskCommandService _createTaskCommandService;
     private readonly UpdateTaskStatusCommandService _updateTaskStatusCommandService;
     private readonly GetTasksQueryService _getTasksQueryService;
+    private readonly DeleteTaskCommandService _deleteTaskCommandService;
 
     public TaskController(CreateTaskCommandService createTaskCommandService,
-        UpdateTaskStatusCommandService updateTaskStatusCommandService, GetTasksQueryService getTasksQueryService)
+        UpdateTaskStatusCommandService updateTaskStatusCommandService,
+        GetTasksQueryService getTasksQueryService,
+        DeleteTaskCommandService deleteTaskCommandService)
     {
         _createTaskCommandService = createTaskCommandService;
         _updateTaskStatusCommandService = updateTaskStatusCommandService;
         _getTasksQueryService = getTasksQueryService;
+        _deleteTaskCommandService = deleteTaskCommandService;
     }
 
     [HttpPost]
@@ -30,7 +34,7 @@ public class TaskController : ControllerBase
     {
         try
         {
-            var taskId = await _createTaskCommandService.Handle(request.Title, request.Description, request.CropId, request.ResponsibleId);
+            var taskId = await _createTaskCommandService.Handle(request.Title, request.Description, request.OrganizationId, request.CropId, request.ResponsibleId);
             var tasks = await _getTasksQueryService.Handle();
             var task = tasks.Find(t => t.Id == taskId);
             return CreatedAtAction(nameof(GetById), new { taskId }, TaskAssembler.ToCreatedResource(task!));
@@ -50,21 +54,28 @@ public class TaskController : ControllerBase
     }
 
     [HttpGet]
-    [SwaggerOperation(Summary = "Get tasks by Status")]
-    public async Task<IActionResult> GetTasksByStatus([FromQuery]string? status = null)
+    [SwaggerOperation(Summary = "Get tasks filtered by status, organizationId or responsibleId")]
+    public async Task<IActionResult> GetTasksByStatus(
+        [FromQuery] string? status = null,
+        [FromQuery] int? organizationId = null,
+        [FromQuery] int? responsibleId = null)
     {
         var tasks = await _getTasksQueryService.Handle();
+
         if (!string.IsNullOrEmpty(status))
         {
             if (Enum.TryParse<Domain.Model.ValueObjects.TaskStatus>(status, true, out var statusEnum))
-            {
                 tasks = tasks.Where(t => t.Status == statusEnum).ToList();
-            }
             else
-            {
                 return BadRequest(new { message = "Invalid status" });
-            }
         }
+
+        if (organizationId.HasValue)
+            tasks = tasks.Where(t => t.OrganizationId == organizationId.Value).ToList();
+
+        if (responsibleId.HasValue)
+            tasks = tasks.Where(t => t.ResponsibleId == responsibleId.Value).ToList();
+
         return Ok(tasks.Select(TaskAssembler.ToResource));
     }
 
@@ -79,5 +90,14 @@ public class TaskController : ControllerBase
             return NotFound();
         }
         return Ok(TaskAssembler.ToResource(task));
+    }
+
+    [HttpDelete("{taskId:int}")]
+    [SwaggerOperation(Summary = "Delete a task by id")]
+    public async Task<IActionResult> DeleteTask(int taskId)
+    {
+        var deleted = await _deleteTaskCommandService.Handle(taskId);
+        if (!deleted) return NotFound(new { message = "Task not found" });
+        return NoContent();
     }
 }

@@ -9,27 +9,26 @@ public class CreateTaskCommandService
 {
     private readonly ITaskRepository _taskRepository;
     private readonly ICropRepository _cropRepository;
+    private readonly IOrganizationRepository _organizationRepository;
 
-    public CreateTaskCommandService(ITaskRepository taskRepository, ICropRepository cropRepository)
+    public CreateTaskCommandService(ITaskRepository taskRepository, ICropRepository cropRepository, IOrganizationRepository organizationRepository)
     {
         _taskRepository = taskRepository;
         _cropRepository = cropRepository;
+        _organizationRepository = organizationRepository;
     }
 
-    public async Task<int> Handle(string title, string description, int cropId, int responsibleId)
+    public async Task<int> Handle(string title, string description, int organizationId, int cropId, int responsibleId)
     {
-        var crop = await _cropRepository.FindByIdWithMembersAsync(cropId);
+        var organization = await _organizationRepository.FindByIdAsync(organizationId);
+        if (organization is null)
+            throw new InvalidOperationException($"Organization with id {organizationId} does not exist.");
+
+        var crop = await _cropRepository.FindByIdAsync(cropId);
         if (crop is null)
-        {
             throw new InvalidOperationException($"Crop with id {cropId} does not exist.");
-        }
 
-        if (!crop.Members.Any(member => member.ProfileId == responsibleId))
-        {
-            throw new InvalidOperationException($"Profile with id {responsibleId} does not belong to crop {cropId}.");
-        }
-
-        var task = new TaskAggregate(title, description, cropId, responsibleId);
+        var task = new TaskAggregate(title, description, organizationId, cropId, responsibleId);
         return await _taskRepository.AddAsync(task);
     }
 }

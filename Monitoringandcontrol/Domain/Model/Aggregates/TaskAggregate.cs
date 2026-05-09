@@ -12,6 +12,7 @@ public class TaskAggregate
     
     public string Description { get; private set; }
     
+    public int OrganizationId { get; private set; }
     public int ParcelId { get; private set; }
     public int ResponsibleId  { get; private set; }
     public TaskStatus Status { get; private set; }
@@ -26,10 +27,11 @@ public class TaskAggregate
     {
     }
 
-    public TaskAggregate(string title, string description, int parcelId, int responsibleId)
+    public TaskAggregate(string title, string description, int organizationId, int parcelId, int responsibleId)
     {
         Title = title ?? throw new ArgumentNullException(nameof(title));
         Description = description;
+        OrganizationId = organizationId;
         ParcelId = parcelId;
         ResponsibleId = responsibleId;
         Status = TaskStatus.Pending;

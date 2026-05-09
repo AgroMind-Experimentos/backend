@@ -7,4 +7,5 @@ public interface IChecklistRepository
 {
     Task<int> AddAsync(Checklist checklist);
     Task<Checklist?> GetByTaskId(int taskId);
+    Task RemoveByTaskIdAsync(int taskId);
 }

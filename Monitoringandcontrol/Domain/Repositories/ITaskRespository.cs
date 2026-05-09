@@ -10,4 +10,5 @@ public interface ITaskRepository
     Task<TaskAggregate> GetByIdAsync(int id);
     Task<List<TaskAggregate>> GetAllAsync();
     Task UpdateAsync(TaskAggregate task);
+    Task DeleteAsync(int id);
 }

@@ -27,4 +27,12 @@ public class ChecklistRepository : IChecklistRepository
     {
         return await _dbContext.Set<Checklist>().Include(c => c.Items).FirstOrDefaultAsync(x => x.TaskId == taskId);
     }
+
+    public async Task RemoveByTaskIdAsync(int taskId)
+    {
+        var checklist = await _dbContext.Set<Checklist>().Include(c => c.Items).FirstOrDefaultAsync(x => x.TaskId == taskId);
+        if (checklist == null) return;
+        _dbContext.Set<Checklist>().Remove(checklist);
+        await _dbContext.SaveChangesAsync();
+    }
 }

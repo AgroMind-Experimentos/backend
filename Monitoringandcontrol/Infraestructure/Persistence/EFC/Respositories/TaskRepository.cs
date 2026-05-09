@@ -41,4 +41,12 @@ public class TaskRepository : ITaskRepository
         _dbContext.Set<TaskAggregate>().Update(task);
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task DeleteAsync(int id)
+    {
+        var task = await _dbContext.Set<TaskAggregate>().FindAsync(id);
+        if (task == null) return;
+        _dbContext.Set<TaskAggregate>().Remove(task);
+        await _dbContext.SaveChangesAsync();
+    }
 }
