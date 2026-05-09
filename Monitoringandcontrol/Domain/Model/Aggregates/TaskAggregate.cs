@@ -58,6 +58,13 @@ public class TaskAggregate
         UpdatedAt = DateTime.UtcNow;
     }
 
+    public void UpdateDetails(string title, string description, int responsibleId)
+    {
+        Title = title ?? throw new ArgumentNullException(nameof(title));
+        Description = description;
+        ResponsibleId = responsibleId;
+    }
+
     public void SetUpdatedAt()
     {
         UpdatedAt = DateTime.Now;

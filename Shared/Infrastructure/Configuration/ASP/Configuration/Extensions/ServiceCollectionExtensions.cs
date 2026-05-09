@@ -166,7 +166,9 @@ public static IServiceCollection AddSharedContext(this IServiceCollection servic
         services.AddScoped<IChecklistRepository, ChecklistRepository>();
         services.AddScoped<ILogbookRepository, LogbookRepository>();
         services.AddScoped<CreateTaskCommandService>();
+        services.AddScoped<UpdateTaskCommandService>();
         services.AddScoped<CreateChecklistCommandService>();
+        services.AddScoped<UpdateChecklistCommandService>();
         services.AddScoped<UpdateTaskStatusCommandService>();
         services.AddScoped<DeleteTaskCommandService>();
         services.AddScoped<GetTasksQueryService>();

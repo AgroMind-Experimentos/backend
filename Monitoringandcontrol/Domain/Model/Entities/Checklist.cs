@@ -24,4 +24,6 @@ public class Checklist
     {
         _items.Add(new ChecklistItem(description));
     }
+
+    public void ClearItems() => _items.Clear();
 }

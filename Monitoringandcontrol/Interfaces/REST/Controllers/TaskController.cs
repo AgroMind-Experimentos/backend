@@ -13,16 +13,19 @@ namespace EcotrackPlatform.API.Monitoringandcontrol.Interfaces.REST.Controllers;
 public class TaskController : ControllerBase
 {
     private readonly CreateTaskCommandService _createTaskCommandService;
+    private readonly UpdateTaskCommandService _updateTaskCommandService;
     private readonly UpdateTaskStatusCommandService _updateTaskStatusCommandService;
     private readonly GetTasksQueryService _getTasksQueryService;
     private readonly DeleteTaskCommandService _deleteTaskCommandService;
 
     public TaskController(CreateTaskCommandService createTaskCommandService,
+        UpdateTaskCommandService updateTaskCommandService,
         UpdateTaskStatusCommandService updateTaskStatusCommandService,
         GetTasksQueryService getTasksQueryService,
         DeleteTaskCommandService deleteTaskCommandService)
     {
         _createTaskCommandService = createTaskCommandService;
+        _updateTaskCommandService = updateTaskCommandService;
         _updateTaskStatusCommandService = updateTaskStatusCommandService;
         _getTasksQueryService = getTasksQueryService;
         _deleteTaskCommandService = deleteTaskCommandService;
@@ -90,6 +93,21 @@ public class TaskController : ControllerBase
             return NotFound();
         }
         return Ok(TaskAssembler.ToResource(task));
+    }
+
+    [HttpPut("{taskId:int}")]
+    [SwaggerOperation(Summary = "Update task title and description")]
+    public async Task<IActionResult> UpdateTask(int taskId, [FromBody] UpdateTaskRequest request)
+    {
+        try
+        {
+            await _updateTaskCommandService.Handle(taskId, request.Title, request.Description, request.ResponsibleId);
+            return Ok(new { message = "Task updated" });
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Task not found" });
+        }
     }
 
     [HttpDelete("{taskId:int}")]

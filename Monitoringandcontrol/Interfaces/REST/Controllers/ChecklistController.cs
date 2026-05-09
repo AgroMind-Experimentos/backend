@@ -18,12 +18,15 @@ namespace EcotrackPlatform.API.Monitoringandcontrol.Interfaces.REST.Controllers;
 public class ChecklistController : ControllerBase
 {
     private readonly CreateChecklistCommandService _createChecklistCommandService;
+    private readonly UpdateChecklistCommandService _updateChecklistCommandService;
     private readonly GetChecklistByTaskIdQueryService _getChecklistByTaskIdQueryService;
 
     public ChecklistController(CreateChecklistCommandService createChecklistCommandService,
+        UpdateChecklistCommandService updateChecklistCommandService,
         GetChecklistByTaskIdQueryService getChecklistByTaskIdQueryService)
     {
         _createChecklistCommandService = createChecklistCommandService;
+        _updateChecklistCommandService = updateChecklistCommandService;
         _getChecklistByTaskIdQueryService = getChecklistByTaskIdQueryService;
     }
 
@@ -43,8 +46,28 @@ public class ChecklistController : ControllerBase
         var checklist = await _getChecklistByTaskIdQueryService.Handle(taskId);
         if (checklist == null)
         {
-            return Ok(new {message = "Checklist not found"});
+            return Ok(new { message = "Checklist not found" });
         }
         return Ok(ChecklistAssembler.ToResource(checklist));
+    }
+
+    [HttpPut("{id:int}")]
+    [SwaggerOperation(Summary = "Update checklist items")]
+    public async Task<IActionResult> UpdateChecklist(int id, [FromBody] UpdateChecklistRequest request)
+    {
+        try
+        {
+            var descriptions = request.Items.Select(i => i.Description).ToList();
+            await _updateChecklistCommandService.Handle(id, descriptions);
+            return Ok(new { message = "Checklist updated" });
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Checklist not found" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }
