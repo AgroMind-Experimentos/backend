@@ -10,6 +10,6 @@ public static class CreateOrganizationCommandFromResourceAssembler
             resource.Name,
             resource.Description,
             resource.Status,
-            resource.MemberIds
+            resource.AgronomistId
         );
 }

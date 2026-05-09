@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using EcotrackPlatform.API.Shared.Infrastructure.Persistence.EFC.Configuration;
 using EcotrackPlatform.API.Profile.Domain.Repositories;
-// Alias para evitar colisión con namespace Profile
+using EcotrackPlatform.API.Profile.Domain.Model.ValueObjects;
 using ProfileAgg = EcotrackPlatform.API.Profile.Domain.Model.Aggregates.Profile;
 
 namespace EcotrackPlatform.API.Profile.Infrastructure.Repositories
@@ -15,6 +15,9 @@ namespace EcotrackPlatform.API.Profile.Infrastructure.Repositories
 
         public async Task<IEnumerable<ProfileAgg>> ListAsync() =>
             await _ctx.Set<ProfileAgg>().AsNoTracking().ToListAsync();
+
+        public async Task<IEnumerable<ProfileAgg>> ListByRoleAsync(UserRole role) =>
+            await _ctx.Set<ProfileAgg>().Where(p => p.Role == role).AsNoTracking().ToListAsync();
 
         public async Task<ProfileAgg?> FindByIdAsync(int id) =>
             await _ctx.Set<ProfileAgg>().FirstOrDefaultAsync(p => p.Id == id);
