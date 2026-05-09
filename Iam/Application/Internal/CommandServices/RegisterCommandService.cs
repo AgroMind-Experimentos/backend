@@ -10,7 +10,7 @@ public enum RegisterError
 {
     None,
     InvalidInput,
-    PasswordTooShort,
+    InsecurePassword,
     EmailAlreadyExists
 }
 
@@ -28,8 +28,14 @@ public class RegisterCommandService(IProfileRepository profiles, IUnitOfWork uow
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(displayName))
             return new RegisterResult(Error: RegisterError.InvalidInput);
 
-        if (password.Length < 6)
-            return new RegisterResult(Error: RegisterError.PasswordTooShort);
+        try
+        {
+            var _password = new Password(password);
+        }
+        catch (ArgumentException ex)
+        {
+            return new RegisterResult(Error: RegisterError.InsecurePassword);
+        }
 
         var existing = await profiles.FindByEmailAsync(email);
         if (existing is not null)

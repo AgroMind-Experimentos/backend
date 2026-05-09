@@ -31,7 +31,7 @@ public class AuthController(
         return result.Error switch
         {
             RegisterError.EmailAlreadyExists => Conflict(new { message = "Email is already in use." }),
-            RegisterError.PasswordTooShort => BadRequest(new { message = "Password must be at least 6 characters." }),
+            RegisterError.InsecurePassword => BadRequest(new { message = "Password must contain at least 8 characters, an uppercase letter, a lowercase letter and a number." }),
             RegisterError.InvalidInput => BadRequest(new { message = "Invalid data provided." }),
             _ => StatusCode(500)
         };
