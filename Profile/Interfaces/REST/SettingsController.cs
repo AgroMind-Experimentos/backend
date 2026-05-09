@@ -9,7 +9,7 @@ using EcotrackPlatform.API.Iam.Domain.Repositories;
 namespace EcotrackPlatform.API.Profile.Interfaces.REST
 {
     [ApiController]
-    [Route("settings")]
+    [Route("api/v1/settings")]
     public class SettingsController : ControllerBase
     {
         // DTO local para no crear archivo adicional:

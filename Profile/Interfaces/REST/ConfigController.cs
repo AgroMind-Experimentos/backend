@@ -5,13 +5,13 @@ using EcotrackPlatform.API.Profile.Interfaces.REST.Resources;
 namespace EcotrackPlatform.API.Profile.Interfaces.REST
 {
     [ApiController]
-    [Route("config")]
+    [Route("api/v1/config")]
     public class ConfigController : ControllerBase
     {
         private readonly IConfiguration _config;
         public ConfigController(IConfiguration config) => _config = config;
 
-        [HttpGet("public")]
+        [HttpGet()]
         [SwaggerOperation(Summary = "Obtener configuración pública para el front")]
         public IActionResult GetPublic()
         {

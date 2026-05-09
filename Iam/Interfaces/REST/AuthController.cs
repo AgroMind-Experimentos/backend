@@ -5,7 +5,7 @@ using EcotrackPlatform.API.Iam.Interfaces.REST.Resources;
 namespace EcotrackPlatform.API.Iam.Interfaces.REST;
 
 [ApiController]
-[Route("auth")]
+[Route("api/v1/auth")]
 public class AuthController : ControllerBase
 {
     private readonly AuthCommandService _auth;

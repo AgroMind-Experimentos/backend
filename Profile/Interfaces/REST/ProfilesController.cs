@@ -5,13 +5,12 @@ using EcotrackPlatform.API.Profile.Application.Internal.QueryServices;
 using EcotrackPlatform.API.Profile.Application.Internal.CommandServices;
 using EcotrackPlatform.API.Profile.Interfaces.REST.Resources;
 using EcotrackPlatform.API.Profile.Interfaces.REST.Transform;
-using EcotrackPlatform.API.Profile.Domain.Model.Commands;
 using EcotrackPlatform.API.Iam.Domain.Repositories;
 
 namespace EcotrackPlatform.API.Profile.Interfaces.REST
 {
     [ApiController]
-    [Route("users")]
+    [Route("api/v1/profiles")]
     public class ProfilesController : ControllerBase
     {
         private readonly ProfileQueryService _queries;

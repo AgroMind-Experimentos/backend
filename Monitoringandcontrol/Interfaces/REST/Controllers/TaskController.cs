@@ -8,7 +8,7 @@ using EcotrackPlatform.API.Monitoringandcontrol.Interfaces.REST.Resources.Reques
 namespace EcotrackPlatform.API.Monitoringandcontrol.Interfaces.REST.Controllers;
 
 [ApiController]
-[Route("api/tasks")]
+[Route("api/v1/tasks")]
 [Tags("Tasks")]
 public class TaskController : ControllerBase
 {

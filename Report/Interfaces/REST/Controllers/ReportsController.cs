@@ -5,7 +5,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using EcotrackPlatform.API.Report.Application.Internal.QueryServices;
 
 [ApiController]
-[Route("api/reports")]
+[Route("api/v1/reports")]
 public class ReportsController : ControllerBase
 {
     private readonly ReportQueryService _queryService;
