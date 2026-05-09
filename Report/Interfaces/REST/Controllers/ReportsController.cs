@@ -25,11 +25,11 @@ public class ReportsController : ControllerBase
         OperationId = "GenerateTasksReport"
     )]
     [SwaggerResponse(200, "Reporte generado exitosamente")]
-    public async Task<IActionResult> GenerateTasksReport()
+    public async Task<IActionResult> GenerateTasksReport([FromQuery] int? organizationId = null)
     {
         try
         {
-            var report = await _queryService.GenerateTasksReportAsync();
+            var report = await _queryService.GenerateTasksReportAsync(organizationId);
             return Ok(report);
         }
         catch (Exception ex)
@@ -48,11 +48,11 @@ public class ReportsController : ControllerBase
         OperationId = "GenerateTasksReportPdf"
     )]
     [SwaggerResponse(200, "Reporte PDF generado exitosamente")]
-    public async Task<IActionResult> GenerateTasksReportPdf()
+    public async Task<IActionResult> GenerateTasksReportPdf([FromQuery] int? organizationId = null)
     {
         try
         {
-            var pdfBytes = await _queryService.GenerateTasksReportPdfAsync();
+            var pdfBytes = await _queryService.GenerateTasksReportPdfAsync(organizationId);
             var fileName = $"Reporte_Tareas_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
             
             // Retornar el PDF como FileContentResult

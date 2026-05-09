@@ -35,6 +35,13 @@ public class TaskRepository : ITaskRepository
         return await _dbContext.Set<TaskAggregate>().ToListAsync();
     }
 
+    public async Task<List<TaskAggregate>> GetByOrganizationIdAsync(int organizationId)
+    {
+        return await _dbContext.Set<TaskAggregate>()
+            .Where(t => t.OrganizationId == organizationId)
+            .ToListAsync();
+    }
+
     public async Task UpdateAsync(TaskAggregate task)
     {
         task.SetUpdatedAt();
