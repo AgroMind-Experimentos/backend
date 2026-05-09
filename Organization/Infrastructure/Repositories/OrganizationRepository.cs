@@ -17,4 +17,10 @@ public class OrganizationRepository(AppDbContext context)
         await Context.Set<Domain.Model.Aggregates.Organization>()
             .Include(org => org.Members)
             .ToListAsync();
+
+    public async Task<IEnumerable<Domain.Model.Aggregates.Organization>> ListByMemberAsync(int profileId) =>
+        await Context.Set<Domain.Model.Aggregates.Organization>()
+            .Include(org => org.Members)
+            .Where(org => org.Members.Any(m => m.ProfileId == profileId))
+            .ToListAsync();
 }

@@ -6,15 +6,12 @@ public static class ApplicationBuilderExtensions
 {
     public static WebApplication EnsureDatabaseCreated(this WebApplication app)
     {
-        using (var scope = app.Services.CreateScope())
-        {
-            var services = scope.ServiceProvider;
-            var context = services.GetRequiredService<AppDbContext>();
-            context.Database.EnsureCreated();
-        }
-
+        using var scope = app.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        context.Database.EnsureCreated();
         return app;
     }
+
 
     public static WebApplication ConfigureMiddleware(this WebApplication app)
     {

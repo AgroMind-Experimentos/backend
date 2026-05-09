@@ -6,4 +6,5 @@ public interface IOrganizationQueryService
 {
     Task<Domain.Model.Aggregates.Organization?> Handle(GetOrganizationByIdQuery query);
     Task<IEnumerable<Domain.Model.Aggregates.Organization>> Handle(GetAllOrganizationsQuery query);
+    Task<IEnumerable<Domain.Model.Aggregates.Organization>> HandleByMemberAsync(int profileId);
 }

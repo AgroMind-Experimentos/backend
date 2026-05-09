@@ -6,4 +6,5 @@ public interface IOrganizationRepository : IBaseRepository<Domain.Model.Aggregat
 {
 	Task<Domain.Model.Aggregates.Organization?> FindByIdWithMembersAsync(int id);
 	Task<IEnumerable<Domain.Model.Aggregates.Organization>> ListWithMembersAsync();
+	Task<IEnumerable<Domain.Model.Aggregates.Organization>> ListByMemberAsync(int profileId);
 }
