@@ -22,6 +22,7 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<Crop> Crops { get; set; }
     public DbSet<OrganizationMember> OrganizationMembers { get; set; }
     public DbSet<CropMember> CropMembers { get; set; }
+    public DbSet<EcotrackPlatform.API.Organization.Domain.Model.Entities.Invitation> Invitations { get; set; }
 
     // Report Module
     public DbSet<EcotrackPlatform.API.Report.Domain.Model.Report> Reports { get; set; }

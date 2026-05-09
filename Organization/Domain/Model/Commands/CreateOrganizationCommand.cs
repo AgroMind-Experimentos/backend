@@ -4,6 +4,6 @@ public record CreateOrganizationCommand(
     string Name,
     string Description,
     string Status,
-    List<int>? MemberIds = null
+    int? AgronomistId = null
 );
 

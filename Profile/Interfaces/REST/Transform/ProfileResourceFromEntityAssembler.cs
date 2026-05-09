@@ -6,6 +6,6 @@ namespace EcotrackPlatform.API.Profile.Interfaces.REST.Transform
     public static class ProfileResourceFromEntityAssembler
     {
         public static ProfileResource ToResource(ProfileAgg e)
-            => new(e.Id, e.Email, e.DisplayName);
+            => new(e.Id, e.Email, e.DisplayName, e.Role.ToString());
     }
 }

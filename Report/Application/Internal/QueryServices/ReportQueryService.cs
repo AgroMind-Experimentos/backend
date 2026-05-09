@@ -18,10 +18,11 @@ public class ReportQueryService
     /// <summary>
     /// Genera un reporte en tiempo real del estado de todas las tareas
     /// </summary>
-    public async Task<object> GenerateTasksReportAsync()
+    public async Task<object> GenerateTasksReportAsync(int? organizationId = null)
     {
-        // Obtener todas las tareas del repositorio
-        var allTasks = await _taskRepository.GetAllAsync();
+        var allTasks = organizationId.HasValue
+            ? await _taskRepository.GetByOrganizationIdAsync(organizationId.Value)
+            : await _taskRepository.GetAllAsync();
 
         // Calcular estadísticas
         var totalTasks = allTasks.Count;
@@ -60,10 +61,9 @@ public class ReportQueryService
     /// <summary>
     /// Genera un reporte en formato PDF del estado de todas las tareas
     /// </summary>
-    public async Task<byte[]> GenerateTasksReportPdfAsync()
+    public async Task<byte[]> GenerateTasksReportPdfAsync(int? organizationId = null)
     {
-        // Obtener el reporte en formato JSON
-        var reportData = await GenerateTasksReportAsync();
+        var reportData = await GenerateTasksReportAsync(organizationId);
         
         // Generar el PDF usando el servicio
         var pdfBytes = _pdfGenerator.GenerateTasksReportPdf(reportData);

@@ -14,9 +14,6 @@ public class OrganizationCommandService(
 {
     public async Task<Domain.Model.Aggregates.Organization> Handle(CreateOrganizationCommand command)
     {
-        if (command.MemberIds is not null && command.MemberIds.Count > 0)
-            await ValidateProfilesExistAsync(command.MemberIds);
-
         var org = new Domain.Model.Aggregates.Organization(
             command.Name,
             command.Description,
@@ -26,9 +23,10 @@ public class OrganizationCommandService(
         await repository.AddAsync(org);
         await unitOfWork.CompleteAsync();
 
-        if (command.MemberIds is not null && command.MemberIds.Count > 0)
+        // Add only the agronomist as the initial member
+        if (command.AgronomistId.HasValue)
         {
-            org.SyncMembers(command.MemberIds);
+            org.SyncMembers(new[] { command.AgronomistId.Value });
             repository.Update(org);
             await unitOfWork.CompleteAsync();
         }

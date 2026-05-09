@@ -35,9 +35,14 @@ namespace EcotrackPlatform.API.Profile.Interfaces.REST
         }
 
         [HttpGet]
-        [SwaggerOperation(Summary = "Listar todos los usuarios")]
-        public async Task<IActionResult> List()
+        [SwaggerOperation(Summary = "Listar todos los usuarios, opcionalmente filtrados por rol")]
+        public async Task<IActionResult> List([FromQuery] string? role = null)
         {
+            if (role is not null && Enum.TryParse<EcotrackPlatform.API.Profile.Domain.Model.ValueObjects.UserRole>(role, true, out var userRole))
+            {
+                var filtered = await _queries.ListByRoleAsync(userRole);
+                return Ok(filtered.Select(ProfileResourceFromEntityAssembler.ToResource));
+            }
             var list = await _queries.ListAsync();
             return Ok(list.Select(ProfileResourceFromEntityAssembler.ToResource));
         }

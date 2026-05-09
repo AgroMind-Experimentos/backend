@@ -15,5 +15,10 @@ public class OrganizationQueryService(IOrganizationRepository organizationReposi
     {
         return await organizationRepository.ListWithMembersAsync();
     }
+
+    public async Task<IEnumerable<Domain.Model.Aggregates.Organization>> HandleByMemberAsync(int profileId)
+    {
+        return await organizationRepository.ListByMemberAsync(profileId);
+    }
 }
 

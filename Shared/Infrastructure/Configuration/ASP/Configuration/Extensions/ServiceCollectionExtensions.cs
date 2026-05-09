@@ -35,6 +35,10 @@ public static class ServiceCollectionExtensions
             options.Conventions.Add(new KebabCaseRouteNamingConvention());
             options.RespectBrowserAcceptHeader = true;
         })
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        })
         .AddXmlSerializerFormatters()
         .ConfigureApiBehaviorOptions(options =>
         {
@@ -162,8 +166,12 @@ public static IServiceCollection AddSharedContext(this IServiceCollection servic
         services.AddScoped<IChecklistRepository, ChecklistRepository>();
         services.AddScoped<ILogbookRepository, LogbookRepository>();
         services.AddScoped<CreateTaskCommandService>();
+        services.AddScoped<UpdateTaskCommandService>();
         services.AddScoped<CreateChecklistCommandService>();
+        services.AddScoped<UpdateChecklistCommandService>();
+        services.AddScoped<UpdateChecklistItemCommandService>();
         services.AddScoped<UpdateTaskStatusCommandService>();
+        services.AddScoped<DeleteTaskCommandService>();
         services.AddScoped<GetTasksQueryService>();
         services.AddScoped<GetChecklistByTaskIdQueryService>();
         services.AddScoped<CreateLogbookCommandService>();
@@ -185,6 +193,8 @@ public static IServiceCollection AddSharedContext(this IServiceCollection servic
             Organization.Infrastructure.Repositories.OrganizationRepository>();
         services.AddScoped<Organization.Domain.Repositories.ICropRepository,
             Organization.Infrastructure.Repositories.CropRepository>();
+        services.AddScoped<Organization.Domain.Repositories.IInvitationRepository,
+            Organization.Infrastructure.Repositories.InvitationRepository>();
 
         // Services
         services.AddScoped<Organization.Aplication.Services.IOrganizationCommandService,
@@ -195,6 +205,7 @@ public static IServiceCollection AddSharedContext(this IServiceCollection servic
             Organization.Aplication.Internal.CommandServices.CropCommandService>();
         services.AddScoped<Organization.Aplication.Services.ICropQueryService,
             Organization.Aplication.Internal.QueryServices.CropQueryService>();
+        services.AddScoped<Organization.Aplication.Internal.CommandServices.InvitationCommandService>();
         return services;
     }
 

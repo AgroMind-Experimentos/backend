@@ -52,10 +52,18 @@ public class OrganizationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] int? profileId)
     {
-        var query = new GetAllOrganizationsQuery();
-        var organizations = await _queryService.Handle(query);
+        IEnumerable<Domain.Model.Aggregates.Organization> organizations;
+
+        if (profileId.HasValue)
+            organizations = await _queryService.HandleByMemberAsync(profileId.Value);
+        else
+        {
+            var query = new GetAllOrganizationsQuery();
+            organizations = await _queryService.Handle(query);
+        }
+
         var resources = organizations.Select(OrganizationResourceFromEntityAssembler.ToResource);
         return Ok(resources);
     }
