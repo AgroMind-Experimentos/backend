@@ -1,17 +1,17 @@
 using Microsoft.AspNetCore.Identity;
-using EcotrackPlatform.API.Profile.Domain.Repositories;
 using EcotrackPlatform.API.Iam.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Iam.Domain.Repositories;
 using EcotrackPlatform.API.Iam.Domain.Services;
-using EcotrackPlatform.API.Profile.Domain.Model.ValueObjects;
+using EcotrackPlatform.API.Profiles.Domain.Model.ValueObjects;
+using EcotrackPlatform.API.Profiles.Domain.Repositories;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
-using ProfileAgg = EcotrackPlatform.API.Profile.Domain.Model.Aggregates.Profile;
+using EcotrackPlatform.API.Profiles.Domain.Model.Aggregates;
 
 namespace EcotrackPlatform.API.Iam.Application.Internal.CommandServices;
 
-public record LoginResult(AuthSession Session, string Token, ProfileAgg User);
+public record LoginResult(AuthSession Session, string Token, Profile User);
 
-public record RegisterResult(ProfileAgg? Profile, bool EmailConflict = false);
+public record RegisterResult(Profile? Profile, bool EmailConflict = false);
 
 public class AuthCommandService
 {
@@ -19,7 +19,7 @@ public class AuthCommandService
     private readonly IAuthSessionRepository _sessions;
     private readonly IUnitOfWork _uow;
     private readonly ITokenService _tokenService;
-    private readonly PasswordHasher<ProfileAgg> _hasher = new();
+    private readonly PasswordHasher<Profile> _hasher = new();
 
     public AuthCommandService(
         IProfileRepository profiles,
@@ -43,10 +43,10 @@ public class AuthCommandService
         var existing = await _profiles.FindByEmailAsync(email);
         if (existing is not null) return new RegisterResult(null, EmailConflict: true);
 
-        var temp = new ProfileAgg(email, displayName, "temp", role);
+        var temp = new Profile(email, displayName, "temp", role);
         var hash = _hasher.HashPassword(temp, password);
 
-        var profile = new ProfileAgg(email, displayName, hash, role);
+        var profile = new Profile(email, displayName, hash, role);
         await _profiles.AddAsync(profile);
         await _uow.CompleteAsync();
         return new RegisterResult(profile);

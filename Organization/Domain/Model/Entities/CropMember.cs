@@ -1,7 +1,9 @@
+using EcotrackPlatform.API.Profiles.Domain.Model.Aggregates;
+
 namespace EcotrackPlatform.API.Organization.Domain.Model.Entities;
 
 using EcotrackPlatform.API.Organization.Domain.Model.Aggregates;
-using ProfileAgg = EcotrackPlatform.API.Profile.Domain.Model.Aggregates.Profile;
+using Profile = Profile;
 
 public class CropMember
 {
@@ -9,7 +11,7 @@ public class CropMember
     public int CropId { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
-    public ProfileAgg Profile { get; private set; } = null!;
+    public Profile Profile { get; private set; } = null!;
     public Crop Crop { get; private set; } = null!;
 
     protected CropMember() { }

@@ -1,4 +1,6 @@
-﻿namespace EcotrackPlatform.API.Organization.Domain.Model.Entities;
+﻿using EcotrackPlatform.API.Profiles.Domain.Model.Aggregates;
+
+namespace EcotrackPlatform.API.Organization.Domain.Model.Entities;
 
 public class OrganizationMember
 {
@@ -6,7 +8,7 @@ public class OrganizationMember
     public int OrganizationId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     
-    public Profile.Domain.Model.Aggregates.Profile Profile { get; private set; } = null!;
+    public Profile Profile { get; private set; } = null!;
     public Aggregates.Organization Organization { get; private set; } = null!;
     
     protected OrganizationMember() { }

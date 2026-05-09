@@ -1,6 +1,6 @@
 using EcotrackPlatform.API.Organization.Domain.Model.Entities;
 using EcotrackPlatform.API.Organization.Domain.Repositories;
-using EcotrackPlatform.API.Profile.Domain.Repositories;
+using EcotrackPlatform.API.Profiles.Domain.Repositories;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
 
 namespace EcotrackPlatform.API.Organization.Aplication.Internal.CommandServices;
