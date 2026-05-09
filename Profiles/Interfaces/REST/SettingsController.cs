@@ -11,9 +11,6 @@ namespace EcotrackPlatform.API.Profiles.Interfaces.REST
     [Route("api/v1/settings")]
     public class SettingsController : ControllerBase
     {
-        // DTO local para no crear archivo adicional:
-        public record ChangePasswordResource(string CurrentPassword, string NewPassword);
-
         private readonly SettingsQueryService _queries;
         private readonly SettingsCommandService _commands;
         private readonly ProfileCommandService _profilesCommands;
