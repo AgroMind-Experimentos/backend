@@ -18,6 +18,7 @@ using EcotrackPlatform.API.Shared.Infrastructure.Persistence.Connection;
 using EcotrackPlatform.API.Shared.Infrastructure.Persistence.EFC.Configuration;
 using EcotrackPlatform.API.Shared.Infrastructure.Persistence.Repositories;
 using EcotrackPlatform.API.Shared.Infrastructure.Security.Authentication;
+using EcotrackPlatform.API.Shared.Infrastructure.Security.Cors;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -48,15 +49,29 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddCorsConfiguration(this IServiceCollection services)
+    public static IServiceCollection AddCorsConfiguration(this IServiceCollection services, IWebHostEnvironment environment)
     {
-        services.AddCors(options =>
+        try
         {
-            options.AddPolicy("AllowAllPolicy", policy =>
-                policy.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader());
-        });
+            var isProduction = environment.IsProduction();
+            var allowedOrigins = CorsOriginLoader.GetAllowedOrigins(isProduction);
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(CorsOriginLoader.GetPolicyName(isProduction), policy =>
+                {
+                    policy.WithOrigins(allowedOrigins)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
+                });
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[FATAL] Failed to configure CORS: {ex.Message}");
+            throw;
+        }
 
         return services;
     }
@@ -212,7 +227,9 @@ public static IServiceCollection AddSharedContext(this IServiceCollection servic
     public static IServiceCollection AddIamContext(this IServiceCollection services)
     {
         services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped<AuthCommandService>();
+        services.AddScoped<LoginCommandService>();
+        services.AddScoped<RegisterCommandService>();
+        services.AddScoped<LogoutCommandService>();
         services.AddScoped<IAuthSessionRepository, AuthSessionRepository>();
         services.AddScoped<IProfileRepository, ProfileRepository>();
         return services;

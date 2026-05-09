@@ -1,4 +1,5 @@
 using EcotrackPlatform.API.Shared.Infrastructure.Persistence.EFC.Configuration;
+using EcotrackPlatform.API.Shared.Infrastructure.Security.Cors;
 
 namespace EcotrackPlatform.API.Shared.Infrastructure.Configuration.ASP.Configuration.Extensions;
 
@@ -13,12 +14,12 @@ public static class ApplicationBuilderExtensions
     }
 
 
-    public static WebApplication ConfigureMiddleware(this WebApplication app)
+    public static WebApplication ConfigureMiddleware(this WebApplication app, IWebHostEnvironment environment)
     {
         app.UseSwagger();
         app.UseSwaggerUI();
-
-        app.UseCors("AllowAllPolicy");
+        app.UseRouting();
+        app.UseCors(CorsOriginLoader.GetPolicyName(environment.IsProduction()));
 
         if (app.Environment.IsDevelopment())
         {

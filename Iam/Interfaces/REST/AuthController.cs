@@ -1,35 +1,40 @@
-using Microsoft.AspNetCore.Mvc;
 using EcotrackPlatform.API.Iam.Application.Internal.CommandServices;
+using Microsoft.AspNetCore.Mvc;
 using EcotrackPlatform.API.Iam.Interfaces.REST.Resources;
 
 namespace EcotrackPlatform.API.Iam.Interfaces.REST;
 
 [ApiController]
 [Route("api/v1/auth")]
-public class AuthController : ControllerBase
+public class AuthController(
+    RegisterCommandService registerService,
+    LoginCommandService loginService,
+    LogoutCommandService logoutService)
+    : ControllerBase
 {
-    private readonly AuthCommandService _auth;
-
-    public AuthController(AuthCommandService auth) => _auth = auth;
-
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterResource body)
     {
-        var result = await _auth.RegisterAsync(body.Email, body.Password, body.DisplayName, body.Role);
+        var result = await registerService.RegisterAsync(body.Email, body.Password, body.DisplayName, body.Role);
 
-        if (result.EmailConflict)
-            return Conflict(new { message = "Email is already in use." });
-
-        if (result.Profile is null)
-            return BadRequest(new { message = "Invalid data. Password must be at least 6 characters." });
-
-        return Ok(new
+        if (result.Success)
         {
-            message = "Registration successful. You can now log in.",
-            userId = result.Profile.Id,
-            email = result.Profile.Email,
-            displayName = result.Profile.DisplayName
-        });
+            return Ok(new
+            {
+                message = "Registration successful.",
+                userId = result.Profile!.Id,
+                email = result.Profile.Email,
+                displayName = result.Profile.DisplayName
+            });
+        }
+
+        return result.Error switch
+        {
+            RegisterError.EmailAlreadyExists => Conflict(new { message = "Email is already in use." }),
+            RegisterError.PasswordTooShort => BadRequest(new { message = "Password must be at least 6 characters." }),
+            RegisterError.InvalidInput => BadRequest(new { message = "Invalid data provided." }),
+            _ => StatusCode(500)
+        };
     }
 
     [HttpPost("login")]
@@ -38,17 +43,25 @@ public class AuthController : ControllerBase
         var ua = Request.Headers.UserAgent.ToString();
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
 
-        var result = await _auth.LoginAsync(body.Email, body.Password, ua, ip);
-        if (result is null) return Unauthorized(new { message = "Invalid credentials" });
+        var result = await loginService.LoginAsync(body.Email, body.Password, ua, ip);
 
-        return Ok(new
+        if (result.Success)
         {
-            token = result.Token,
-            expiresAt = result.Session.ExpiresAt,
-            userId = result.Session.ProfileId,
-            role = result.User.Role.ToString(),
-            displayName = result.User.DisplayName
-        });
+            return Ok(new
+            {
+                token = result.Token,
+                expiresAt = result.Session!.ExpiresAt,
+                userId = result.Session.ProfileId,
+                role = result.User!.Role.ToString(),
+                displayName = result.User.DisplayName
+            });
+        }
+
+        return result.Error switch
+        {
+            LoginError.InvalidCredentials => Unauthorized(new { message = "Invalid email or password." }),
+            _ => StatusCode(500)
+        };
     }
 
     [HttpPost("logout")]
@@ -60,8 +73,15 @@ public class AuthController : ControllerBase
             return Ok(new { message = "Logged out" });
         }
 
-        await _auth.LogoutAsync(id);
+        var result = await logoutService.LogoutAsync(id);
         Response.Cookies.Delete("sid");
-        return Ok(new { message = "Logged out" });
+
+        if (result.Success) return Ok(new { message = "Logged out" });
+
+        return result.Error switch
+        {
+            LogoutError.SessionNotFoundOrInactive => NotFound(new { message = "Session is already invalid or does not exist." }),
+            _ => StatusCode(500)
+        };
     }
 }
