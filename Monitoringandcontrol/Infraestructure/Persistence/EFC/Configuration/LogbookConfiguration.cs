@@ -16,6 +16,6 @@ public class LogbookConfiguration : IEntityTypeConfiguration<Logbook>
         builder.Property(x => x.Duration).HasColumnType("date").IsRequired();
         builder.Property(x => x.Volume).IsRequired();
         builder.Property(x => x.Evident).IsRequired(); 
-        builder.Property(x => x.ParcelId).IsRequired();
+        builder.Property(x => x.PlotId).IsRequired();
     }
 }

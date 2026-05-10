@@ -21,7 +21,7 @@ public class AuthController(
         {
             return Ok(new
             {
-                message = "Registration successful.",
+                message = "registerSuccess",
                 userId = result.Profile!.Id,
                 email = result.Profile.Email,
                 displayName = result.Profile.DisplayName
@@ -30,9 +30,9 @@ public class AuthController(
 
         return result.Error switch
         {
-            RegisterError.EmailAlreadyExists => Conflict(new { message = "Email is already in use." }),
-            RegisterError.InsecurePassword => BadRequest(new { message = "Password must contain at least 8 characters, an uppercase letter, a lowercase letter and a number." }),
-            RegisterError.InvalidInput => BadRequest(new { message = "Invalid data provided." }),
+            RegisterError.EmailAlreadyExists => Conflict(new { message = "emailAlreadyInUse" }),
+            RegisterError.InsecurePassword => BadRequest(new { message = "insecurePassword" }),
+            RegisterError.InvalidInput => BadRequest(new { message = "badRequest" }),
             _ => StatusCode(500)
         };
     }
@@ -59,7 +59,7 @@ public class AuthController(
 
         return result.Error switch
         {
-            LoginError.InvalidCredentials => Unauthorized(new { message = "Invalid email or password." }),
+            LoginError.InvalidCredentials => Unauthorized(new { message = "invalidCredentials" }),
             _ => StatusCode(500)
         };
     }
@@ -70,17 +70,17 @@ public class AuthController(
         if (!Request.Cookies.TryGetValue("sid", out var sid) || !Guid.TryParse(sid, out var id))
         {
             Response.Cookies.Delete("sid");
-            return Ok(new { message = "Logged out" });
+            return Ok(new { message = "logoutSuccess" });
         }
 
         var result = await logoutService.LogoutAsync(id);
         Response.Cookies.Delete("sid");
 
-        if (result.Success) return Ok(new { message = "Logged out" });
+        if (result.Success) return Ok(new { message = "logoutSuccess" });
 
         return result.Error switch
         {
-            LogoutError.SessionNotFoundOrInactive => NotFound(new { message = "Session is already invalid or does not exist." }),
+            LogoutError.SessionNotFoundOrInactive => NotFound(new { message = "activeSessionNotFound" }),
             _ => StatusCode(500)
         };
     }
