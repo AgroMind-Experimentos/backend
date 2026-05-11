@@ -3,10 +3,10 @@ using EcotrackPlatform.API.Organizations.Interfaces.REST.Resources;
 
 namespace EcotrackPlatform.API.Organizations.Interfaces.REST.Transform;
 
-public static class CropResourceFromEntityAssembler
+public static class PlotResourceFromEntityAssembler
 {
-    public static CropResource ToResource(Crop entity)
-        => new CropResource
+    public static PlotResource ToResource(Plot entity)
+        => new PlotResource
         {
             Id = entity.Id,
             Name = entity.Name,

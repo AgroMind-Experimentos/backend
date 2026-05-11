@@ -3,7 +3,7 @@ using EcotrackPlatform.API.Organizations.Domain.Model.Entities;
 
 namespace EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 
-public class Crop
+public class Plot
 {
     public int Id { get; private set; }
     public string Name { get; private set; } = default!;
@@ -17,9 +17,9 @@ public class Crop
     private readonly List<TaskAggregate> _tasks = new();
     public List<TaskAggregate> Tasks => _tasks;
     
-    protected Crop() { }
+    protected Plot() { }
 
-    public Crop(string name, string location, double area, string cultivation, int organizationId)
+    public Plot(string name, string location, double area, string cultivation, int organizationId)
     {
         Name = name;
         Location = location;
@@ -37,8 +37,8 @@ public class Crop
         Cultivation = cultivation;
     }
 
-    private readonly List<CropMember> _members = new();
-    public List<CropMember> Members => _members;
+    private readonly List<PlotMember> _members = new();
+    public List<PlotMember> Members => _members;
 
     public void SyncMembers(IEnumerable<int> profileIds)
     {
@@ -46,7 +46,7 @@ public class Crop
 
         foreach (var profileId in profileIds.Distinct())
         {
-            _members.Add(new CropMember(profileId, Id));
+            _members.Add(new PlotMember(profileId, Id));
         }
     }
 

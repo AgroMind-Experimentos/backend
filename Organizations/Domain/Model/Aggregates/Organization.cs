@@ -13,8 +13,8 @@ public class Organization
     private readonly List<OrganizationMember> _members = new();
     public List<OrganizationMember> Members => _members;
     
-    private readonly List<Crop> _crops = new();
-    public List<Crop> Crops => _crops;
+    private readonly List<Plot> _plots = new();
+    public List<Plot> Plots => _plots;
     
     protected Organization() { }
     

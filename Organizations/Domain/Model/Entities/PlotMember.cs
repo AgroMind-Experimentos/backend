@@ -5,21 +5,21 @@ namespace EcotrackPlatform.API.Organizations.Domain.Model.Entities;
 
 using Profile = Profile;
 
-public class CropMember
+public class PlotMember
 {
     public int ProfileId { get; private set; }
-    public int CropId { get; private set; }
+    public int PlotId { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
     public Profile Profile { get; private set; } = null!;
-    public Crop Crop { get; private set; } = null!;
+    public Plot Plot { get; private set; } = null!;
 
-    protected CropMember() { }
+    protected PlotMember() { }
 
-    public CropMember(int profileId, int cropId)
+    public PlotMember(int profileId, int plotId)
     {
         ProfileId = profileId;
-        CropId = cropId;
+        PlotId = plotId;
         CreatedAt = DateTime.UtcNow;
     }
 }

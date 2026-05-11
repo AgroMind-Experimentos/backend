@@ -1,6 +1,6 @@
 ﻿namespace EcotrackPlatform.API.Organizations.Domain.Model.Commands;
 
-public record CreateCropCommand(
+public record CreatePlotCommand(
     string Name,
     string Location,
     double Area,

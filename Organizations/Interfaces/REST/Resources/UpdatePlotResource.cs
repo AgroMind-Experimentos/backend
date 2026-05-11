@@ -1,6 +1,6 @@
 namespace EcotrackPlatform.API.Organizations.Interfaces.REST.Resources;
 
-public class UpdateCropResource
+public class UpdatePlotResource
 {
     public string? Name { get; set; }
     public string? Location { get; set; }

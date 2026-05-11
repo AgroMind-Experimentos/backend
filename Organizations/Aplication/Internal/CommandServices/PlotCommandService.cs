@@ -7,13 +7,13 @@ using EcotrackPlatform.API.Shared.Domain.Repositories;
 
 namespace EcotrackPlatform.API.Organizations.Aplication.Internal.CommandServices;
 
-public class CropCommandService(
-    ICropRepository cropRepository,
+public class PlotCommandService(
+    IPlotRepository plotRepository,
     IOrganizationRepository organizationRepository,
     IProfileRepository profileRepository,
-    IUnitOfWork unitOfWork) : ICropCommandService
+    IUnitOfWork unitOfWork) : IPlotCommandService
 {
-    public async Task<Crop> Handle(CreateCropCommand command)
+    public async Task<Plot> Handle(CreatePlotCommand command)
     {
         var organization = await organizationRepository.FindByIdWithMembersAsync(command.OrganizationId);
         if (organization is null)
@@ -24,60 +24,60 @@ public class CropCommandService(
         if (command.MemberIds is not null && command.MemberIds.Count > 0)
             await ValidateMembersBelongToOrganizationAsync(organization, command.MemberIds);
 
-        Crop crop = new Crop(
+        Plot plot = new Plot(
             command.Name,
             command.Location,
             command.Area,
             command.Cultivation,
             command.OrganizationId);
 
-        await cropRepository.AddAsync(crop);
+        await plotRepository.AddAsync(plot);
         await unitOfWork.CompleteAsync();
 
         if (command.MemberIds is not null && command.MemberIds.Count > 0)
         {
-            crop.SyncMembers(command.MemberIds);
-            cropRepository.Update(crop);
+            plot.SyncMembers(command.MemberIds);
+            plotRepository.Update(plot);
             await unitOfWork.CompleteAsync();
         }
 
-        return crop;
+        return plot;
     }
 
-    public async Task<Crop?> UpdateAsync(int id, string? name, string? location, double? area, string? cultivation, List<int>? memberIds)
+    public async Task<Plot?> UpdateAsync(int id, string? name, string? location, double? area, string? cultivation, List<int>? memberIds)
     {
-        var crop = await cropRepository.FindByIdWithMembersAsync(id);
-        if (crop is null) return null;
+        var plot = await plotRepository.FindByIdWithMembersAsync(id);
+        if (plot is null) return null;
 
-        var organization = await organizationRepository.FindByIdWithMembersAsync(crop.OrganizationId);
+        var organization = await organizationRepository.FindByIdWithMembersAsync(plot.OrganizationId);
         if (organization is null)
         {
-            throw new InvalidOperationException($"Organization with id {crop.OrganizationId} does not exist.");
+            throw new InvalidOperationException($"Organization with id {plot.OrganizationId} does not exist.");
         }
 
-        crop.Update(
-            name ?? crop.Name,
-            location ?? crop.Location,
-            area ?? crop.Area,
-            cultivation ?? crop.Cultivation);
+        plot.Update(
+            name ?? plot.Name,
+            location ?? plot.Location,
+            area ?? plot.Area,
+            cultivation ?? plot.Cultivation);
 
         if (memberIds is not null)
         {
             await ValidateMembersBelongToOrganizationAsync(organization, memberIds);
-            crop.SyncMembers(memberIds);
+            plot.SyncMembers(memberIds);
         }
 
-        cropRepository.Update(crop);
+        plotRepository.Update(plot);
         await unitOfWork.CompleteAsync();
-        return crop;
+        return plot;
     }
 
     public async Task<bool> Handle(int id)
     {
-        var crop = await cropRepository.FindByIdAsync(id);
-        if (crop == null) return false;
+        var plot = await plotRepository.FindByIdAsync(id);
+        if (plot == null) return false;
 
-        cropRepository.Remove(crop);
+        plotRepository.Remove(plot);
         await unitOfWork.CompleteAsync();
         return true;
     }

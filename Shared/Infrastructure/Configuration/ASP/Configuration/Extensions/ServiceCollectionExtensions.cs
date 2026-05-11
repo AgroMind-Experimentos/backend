@@ -211,8 +211,8 @@ public static IServiceCollection AddSharedContext(this IServiceCollection servic
         // Repositories
         services.AddScoped<IOrganizationRepository,
             OrganizationRepository>();
-        services.AddScoped<ICropRepository,
-            CropRepository>();
+        services.AddScoped<IPlotRepository,
+            PlotRepository>();
         services.AddScoped<IInvitationRepository,
             InvitationRepository>();
 
@@ -221,10 +221,10 @@ public static IServiceCollection AddSharedContext(this IServiceCollection servic
             OrganizationCommandService>();
         services.AddScoped<IOrganizationQueryService,
             OrganizationQueryService>();
-        services.AddScoped<ICropCommandService,
-            CropCommandService>();
-        services.AddScoped<ICropQueryService,
-            CropQueryService>();
+        services.AddScoped<IPlotCommandService,
+            PlotCommandService>();
+        services.AddScoped<IPlotQueryService,
+            PlotQueryService>();
         services.AddScoped<InvitationCommandService>();
         return services;
     }

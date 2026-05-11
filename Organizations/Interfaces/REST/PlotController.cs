@@ -8,26 +8,26 @@ using Microsoft.AspNetCore.Mvc;
 namespace EcotrackPlatform.API.Organizations.Interfaces.REST;
 
 [ApiController]
-[Route("api/v1/crops")]
-public class CropsController : ControllerBase
+[Route("api/v1/plots")]
+public class PlotsController : ControllerBase
 {
-    private readonly ICropCommandService _commandService;
-    private readonly ICropQueryService _queryService;
+    private readonly IPlotCommandService _commandService;
+    private readonly IPlotQueryService _queryService;
 
-    public CropsController(ICropCommandService commandService, ICropQueryService queryService)
+    public PlotsController(IPlotCommandService commandService, IPlotQueryService queryService)
     {
         _commandService = commandService;
         _queryService = queryService;
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateCropResource resource)
+    public async Task<IActionResult> Create([FromBody] CreatePlotResource resource)
     {
         try
         {
-            var command = CreateCropCommandFromResourceAssembler.ToCommand(resource);
-            Crop result = await _commandService.Handle(command);
-            var resourceResult = CropResourceFromEntityAssembler.ToResource(result);
+            var command = CreatePlotCommandFromResourceAssembler.ToCommand(resource);
+            Plot result = await _commandService.Handle(command);
+            var resourceResult = PlotResourceFromEntityAssembler.ToResource(result);
             return CreatedAtAction(nameof(GetById), new { id = resourceResult.Id }, resourceResult);
         }
         catch (InvalidOperationException ex)
@@ -37,14 +37,14 @@ public class CropsController : ControllerBase
     }
 
     [HttpPatch("{id:int}")]
-    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCropResource resource)
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdatePlotResource resource)
     {
         try
         {
             var updated = await _commandService.UpdateAsync(id, resource.Name, resource.Location, resource.Area, resource.Cultivation, resource.MemberIds);
             if (updated is null) return NotFound();
 
-            return Ok(CropResourceFromEntityAssembler.ToResource(updated));
+            return Ok(PlotResourceFromEntityAssembler.ToResource(updated));
         }
         catch (InvalidOperationException ex)
         {
@@ -55,31 +55,31 @@ public class CropsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var query = new GetAllCropsQuery();
-        var crops = await _queryService.Handle(query);
-        var resources = crops.Select(CropResourceFromEntityAssembler.ToResource);
+        var query = new GetAllPlotsQuery();
+        var plots = await _queryService.Handle(query);
+        var resources = plots.Select(PlotResourceFromEntityAssembler.ToResource);
         return Ok(resources);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var query = new GetCropByIdQuery(id);
-        var crop = await _queryService.Handle(query);
+        var query = new GetPlotByIdQuery(id);
+        var plot = await _queryService.Handle(query);
         
-        if (crop == null)
+        if (plot == null)
             return NotFound();
         
-        var resource = CropResourceFromEntityAssembler.ToResource(crop);
+        var resource = PlotResourceFromEntityAssembler.ToResource(plot);
         return Ok(resource);
     }
 
     [HttpGet("organization/{organizationId}")]
     public async Task<IActionResult> GetByOrganizationId(int organizationId)
     {
-        var query = new GetAllCropsByOrganizationIdQuery(organizationId);
-        var crops = await _queryService.Handle(query);
-        var resources = crops.Select(CropResourceFromEntityAssembler.ToResource);
+        var query = new GetAllPlotsByOrganizationIdQuery(organizationId);
+        var plots = await _queryService.Handle(query);
+        var resources = plots.Select(PlotResourceFromEntityAssembler.ToResource);
         return Ok(resources);
     }
 

@@ -19,9 +19,9 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<ChecklistItem> ChecklistItems { get; set; }
     public DbSet<Logbook> Logbooks { get; set; }
     public DbSet<Organization> Organizations { get; set; }
-    public DbSet<Crop> Crops { get; set; }
+    public DbSet<Plot> Plots { get; set; }
     public DbSet<OrganizationMember> OrganizationMembers { get; set; }
-    public DbSet<CropMember> CropMembers { get; set; }
+    public DbSet<PlotMember> PlotMembers { get; set; }
     public DbSet<Invitation> Invitations { get; set; }
 
     // Report Module
@@ -58,18 +58,18 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
                 .WithMany(o => o.Members)
                 .HasForeignKey(om => om.OrganizationId);
 
-            builder.Entity<CropMember>()
-                .HasKey(cm => new { cm.ProfileId, cm.CropId });
+            builder.Entity<PlotMember>()
+                .HasKey(cm => new { cm.ProfileId, cm.PlotId });
 
-            builder.Entity<CropMember>()
+            builder.Entity<PlotMember>()
                 .HasOne(cm => cm.Profile)
                 .WithMany()
                 .HasForeignKey(cm => cm.ProfileId);
 
-            builder.Entity<Crop>()
+            builder.Entity<Plot>()
                 .HasMany(c => c.Members)
-                .WithOne(cm => cm.Crop)
-                .HasForeignKey(cm => cm.CropId);
+                .WithOne(cm => cm.Plot)
+                .HasForeignKey(cm => cm.PlotId);
         
             builder.Entity<ChecklistItem>()
                 .HasOne<Checklist>()
