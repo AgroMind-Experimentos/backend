@@ -47,10 +47,19 @@ public class AuthController(
 
         if (result.Success)
         {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = result.Session!.ExpiresAt
+            };
+
+            Response.Cookies.Append("token", result.Token!, cookieOptions);
+            Response.Cookies.Append("sid", result.Session.Id.ToString(), cookieOptions);
+
             return Ok(new
             {
-                token = result.Token,
-                expiresAt = result.Session!.ExpiresAt,
+                expiresAt = result.Session.ExpiresAt,
                 userId = result.Session.ProfileId,
                 role = result.User!.Role.ToString(),
                 displayName = result.User.DisplayName
@@ -75,6 +84,7 @@ public class AuthController(
 
         var result = await logoutService.LogoutAsync(id);
         Response.Cookies.Delete("sid");
+        Response.Cookies.Delete("token");
 
         if (result.Success) return Ok(new { message = "logoutSuccess" });
 
