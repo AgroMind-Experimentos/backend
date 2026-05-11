@@ -9,7 +9,7 @@ public static class CreateOrganizationCommandFromResourceAssembler
         => new(
             resource.Name,
             resource.Description,
-            resource.Status,
+            resource.Location,
             resource.AgronomistId
         );
 }

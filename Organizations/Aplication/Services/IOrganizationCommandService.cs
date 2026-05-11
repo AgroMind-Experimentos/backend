@@ -6,6 +6,6 @@
 public interface IOrganizationCommandService
 {
     Task<Organization> Handle(CreateOrganizationCommand command);
-    Task<Organization?> UpdateAsync(int id, string? name, string? description, string? status, List<int>? memberIds);
-    Task<bool> Handle(int id);
+    Task<Organization?> UpdateAsync(UpdateOrganizationCommand command);
+    Task<bool> Handle(DeleteOrganizationByIdCommand command);
 }

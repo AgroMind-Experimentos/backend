@@ -1,5 +1,6 @@
 ﻿using EcotrackPlatform.API.Organizations.Aplication.Services;
 using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
+using EcotrackPlatform.API.Organizations.Domain.Model.Commands;
 using EcotrackPlatform.API.Organizations.Domain.Model.Queries;
 using EcotrackPlatform.API.Organizations.Interfaces.REST.Resources;
 using EcotrackPlatform.API.Organizations.Interfaces.REST.Transform;
@@ -9,24 +10,16 @@ namespace EcotrackPlatform.API.Organizations.Interfaces.REST;
 
 [ApiController]
 [Route("api/v1/organizations")]
-public class OrganizationsController : ControllerBase
+public class OrganizationsController(IOrganizationCommandService commandService, IOrganizationQueryService queryService)
+    : ControllerBase
 {
-    private readonly IOrganizationCommandService _commandService;
-    private readonly IOrganizationQueryService _queryService;
-
-    public OrganizationsController(IOrganizationCommandService commandService, IOrganizationQueryService queryService)
-    {
-        _commandService = commandService;
-        _queryService = queryService;
-    }
-
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateOrganizationResource resource)
     {
         try
         {
             var command = CreateOrganizationCommandFromResourceAssembler.ToCommand(resource);
-            var result = await _commandService.Handle(command);
+            var result = await commandService.Handle(command);
             var resourceResult = OrganizationResourceFromEntityAssembler.ToResource(result);
             return CreatedAtAction(nameof(GetById), new { id = resourceResult.Id }, resourceResult);
         }
@@ -41,7 +34,7 @@ public class OrganizationsController : ControllerBase
     {
         try
         {
-            var updated = await _commandService.UpdateAsync(id, resource.Name, resource.Description, resource.Status, resource.MemberIds);
+            var updated = await commandService.UpdateAsync(UpdateOrganizationCommandFromResourceAssembler.ToCommand(id, resource));
             if (updated is null) return NotFound();
 
             return Ok(OrganizationResourceFromEntityAssembler.ToResource(updated));
@@ -58,22 +51,22 @@ public class OrganizationsController : ControllerBase
         IEnumerable<Organization> organizations;
 
         if (profileId.HasValue)
-            organizations = await _queryService.HandleByMemberAsync(profileId.Value);
+            organizations = await queryService.HandleByMemberAsync(profileId.Value);
         else
         {
             var query = new GetAllOrganizationsQuery();
-            organizations = await _queryService.Handle(query);
+            organizations = await queryService.Handle(query);
         }
 
         var resources = organizations.Select(OrganizationResourceFromEntityAssembler.ToResource);
         return Ok(resources);
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById([FromRoute] int id)
     {
         var query = new GetOrganizationByIdQuery(id);
-        var organization = await _queryService.Handle(query);
+        var organization = await queryService.Handle(query);
         
         if (organization == null)
             return NotFound();
@@ -82,10 +75,10 @@ public class OrganizationsController : ControllerBase
         return Ok(resource);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete([FromRoute] int id)
     {
-        var deleted = await _commandService.Handle(id);
+        var deleted = await commandService.Handle(new DeleteOrganizationByIdCommand(id));
         if (!deleted) return NotFound();
         return NoContent();
     }

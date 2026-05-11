@@ -7,7 +7,7 @@ public class Organization
     public int Id { get; private set; }
     public string Name { get; private set; }
     public string Description { get; private set; }
-    public string Status { get; private set; }
+    public string Location { get; private set; }
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
     
     private readonly List<OrganizationMember> _members = new();
@@ -18,19 +18,19 @@ public class Organization
     
     protected Organization() { }
     
-    public Organization(string name, string description, string status)
+    public Organization(string name, string description, string location)
     {
         Name = name ?? throw new ArgumentNullException(nameof(name));
         Description = description;
-        Status = status;
+        Location = location;
         CreatedAt = DateTime.UtcNow;
     }
     
-    public void Update(string name, string description, string status)
+    public void Update(string? name, string? description, string? location)
     {
-        Name = name.Trim();
-        Description = description.Trim();
-        Status = status.Trim();
+        Name = string.IsNullOrWhiteSpace(name) ? Name : name;
+        Description = string.IsNullOrWhiteSpace(description) ? Description : description;
+        Location = string.IsNullOrWhiteSpace(location) ? Location : location;
     }
 
     public void SyncMembers(IEnumerable<int> profileIds)

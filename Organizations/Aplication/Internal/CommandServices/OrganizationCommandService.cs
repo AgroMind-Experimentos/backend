@@ -19,7 +19,7 @@ public class OrganizationCommandService(
         var org = new Organization(
             command.Name,
             command.Description,
-            command.Status
+            command.Location
         );
 
         await repository.AddAsync(org);
@@ -36,19 +36,18 @@ public class OrganizationCommandService(
         return org;
     }
 
-    public async Task<Organization?> UpdateAsync(int id, string? name, string? description, string? status, List<int>? memberIds)
+    public async Task<Organization?> UpdateAsync(UpdateOrganizationCommand command)
     {
-        var organization = await repository.FindByIdWithMembersAsync(id);
+        var organization = await repository.FindByIdWithMembersAsync(command.Id);
         if (organization is null) return null;
 
-        if (!string.IsNullOrWhiteSpace(name) || !string.IsNullOrWhiteSpace(description) || !string.IsNullOrWhiteSpace(status))
-        {
-            organization.Update(
-                name ?? organization.Name,
-                description ?? organization.Description,
-                status ?? organization.Status);
-        }
+        organization.Update(
+            organization.Name,
+            organization.Description,
+            organization.Location
+        );
 
+        var memberIds = command.MemberIds;
         if (memberIds is not null)
         {
             await ValidateProfilesExistAsync(memberIds);
@@ -60,12 +59,12 @@ public class OrganizationCommandService(
         return organization;
     }
 
-    public async Task<bool> Handle(int id)
+    public async Task<bool> Handle(DeleteOrganizationByIdCommand command)
     {
-        var organization = await repository.FindByIdAsync(id);
+        var organization = await repository.FindByIdAsync(command.Id);
         if (organization is null) return false;
 
-        var pendingInvitations = await invitationRepository.FindPendingByOrganizationAsync(id);
+        var pendingInvitations = await invitationRepository.FindPendingByOrganizationAsync(command.Id);
         foreach (var invitation in pendingInvitations)
         {
             invitation.Cancel();

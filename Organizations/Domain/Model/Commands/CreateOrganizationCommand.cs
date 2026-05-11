@@ -3,7 +3,7 @@
 public record CreateOrganizationCommand(
     string Name,
     string Description,
-    string Status,
+    string Location,
     int? AgronomistId = null
 );
 
