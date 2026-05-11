@@ -8,9 +8,9 @@ using EcotrackPlatform.API.Monitoringandcontrol.Application.Internal.CommandServ
 using EcotrackPlatform.API.Monitoringandcontrol.Application.Internal.QueryServices;
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Repositories;
 using EcotrackPlatform.API.Monitoringandcontrol.Infraestructure.Persistence.EFC.Respositories;
-using EcotrackPlatform.API.Organizations.Aplication.Internal.CommandServices;
-using EcotrackPlatform.API.Organizations.Aplication.Internal.QueryServices;
-using EcotrackPlatform.API.Organizations.Aplication.Services;
+using EcotrackPlatform.API.Organizations.Application.Internal.CommandServices;
+using EcotrackPlatform.API.Organizations.Application.Internal.QueryServices;
+using EcotrackPlatform.API.Organizations.Application.Services;
 using EcotrackPlatform.API.Organizations.Domain.Repositories;
 using EcotrackPlatform.API.Organizations.Infrastructure.Repositories;
 using EcotrackPlatform.API.Profiles.Application.Internal.CommandServices;

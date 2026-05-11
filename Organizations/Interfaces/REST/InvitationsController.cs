@@ -1,5 +1,5 @@
-using EcotrackPlatform.API.Organizations.Aplication.Internal.CommandServices;
-using EcotrackPlatform.API.Organizations.Aplication.Services;
+using EcotrackPlatform.API.Organizations.Application.Internal.CommandServices;
+using EcotrackPlatform.API.Organizations.Application.Services;
 using EcotrackPlatform.API.Organizations.Domain.Model.Queries;
 using EcotrackPlatform.API.Organizations.Interfaces.REST.Resources;
 using Microsoft.AspNetCore.Mvc;

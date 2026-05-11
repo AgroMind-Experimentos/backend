@@ -1,9 +1,9 @@
-﻿using EcotrackPlatform.API.Organizations.Aplication.Services;
+﻿using EcotrackPlatform.API.Organizations.Application.Services;
 using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Organizations.Domain.Model.Queries;
 using EcotrackPlatform.API.Organizations.Domain.Repositories;
 
-namespace EcotrackPlatform.API.Organizations.Aplication.Internal.QueryServices;
+namespace EcotrackPlatform.API.Organizations.Application.Internal.QueryServices;
 
 public class PlotQueryService(IPlotRepository plotRepository) : IPlotQueryService
 {

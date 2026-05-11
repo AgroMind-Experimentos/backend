@@ -1,11 +1,11 @@
-﻿using EcotrackPlatform.API.Organizations.Aplication.Services;
+﻿using EcotrackPlatform.API.Organizations.Application.Services;
 using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Organizations.Domain.Model.Commands;
 using EcotrackPlatform.API.Organizations.Domain.Repositories;
 using EcotrackPlatform.API.Profiles.Domain.Repositories;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
 
-namespace EcotrackPlatform.API.Organizations.Aplication.Internal.CommandServices;
+namespace EcotrackPlatform.API.Organizations.Application.Internal.CommandServices;
 
 public class OrganizationCommandService(
     IOrganizationRepository repository,

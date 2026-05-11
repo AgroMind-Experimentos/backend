@@ -1,4 +1,4 @@
-﻿using EcotrackPlatform.API.Organizations.Aplication.Services;
+﻿using EcotrackPlatform.API.Organizations.Application.Services;
 using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Organizations.Domain.Model.Queries;
 using EcotrackPlatform.API.Organizations.Interfaces.REST.Resources;

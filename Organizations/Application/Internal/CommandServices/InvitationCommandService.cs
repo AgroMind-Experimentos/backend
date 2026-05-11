@@ -3,7 +3,7 @@ using EcotrackPlatform.API.Organizations.Domain.Repositories;
 using EcotrackPlatform.API.Profiles.Domain.Repositories;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
 
-namespace EcotrackPlatform.API.Organizations.Aplication.Internal.CommandServices;
+namespace EcotrackPlatform.API.Organizations.Application.Internal.CommandServices;
 
 public enum InviteResult { Success, InvalidEmail, UserNotFound, DuplicatePending }
 

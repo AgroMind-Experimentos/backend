@@ -1,7 +1,7 @@
 ﻿using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Organizations.Domain.Model.Commands;
 
-namespace EcotrackPlatform.API.Organizations.Aplication.Services;
+namespace EcotrackPlatform.API.Organizations.Application.Services;
 
 public interface IPlotCommandService
 {
