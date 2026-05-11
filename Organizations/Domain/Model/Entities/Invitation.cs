@@ -1,6 +1,6 @@
 namespace EcotrackPlatform.API.Organizations.Domain.Model.Entities;
 
-public enum InvitationStatus { Pending, Accepted, Rejected }
+public enum InvitationStatus { Pending, Accepted, Rejected, Cancelled }
 
 public class Invitation
 {
@@ -24,4 +24,5 @@ public class Invitation
 
     public void Accept() => Status = InvitationStatus.Accepted;
     public void Reject() => Status = InvitationStatus.Rejected;
+    public void Cancel() => Status = InvitationStatus.Cancelled;
 }

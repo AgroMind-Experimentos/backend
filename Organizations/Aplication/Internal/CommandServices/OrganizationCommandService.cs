@@ -10,6 +10,7 @@ namespace EcotrackPlatform.API.Organizations.Aplication.Internal.CommandServices
 public class OrganizationCommandService(
     IOrganizationRepository repository,
     IProfileRepository profileRepository,
+    IInvitationRepository invitationRepository,
     IUnitOfWork unitOfWork)
     : IOrganizationCommandService
 {
@@ -62,7 +63,14 @@ public class OrganizationCommandService(
     public async Task<bool> Handle(int id)
     {
         var organization = await repository.FindByIdAsync(id);
-        if (organization == null) return false;
+        if (organization is null) return false;
+
+        var pendingInvitations = await invitationRepository.FindPendingByOrganizationAsync(id);
+        foreach (var invitation in pendingInvitations)
+        {
+            invitation.Cancel();
+            invitationRepository.Update(invitation);
+        }
 
         repository.Remove(organization);
         await unitOfWork.CompleteAsync();

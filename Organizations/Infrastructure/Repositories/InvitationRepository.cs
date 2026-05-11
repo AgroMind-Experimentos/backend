@@ -20,6 +20,11 @@ public class InvitationRepository : IInvitationRepository
             .Where(i => i.FarmerProfileId == farmerProfileId && i.Status == InvitationStatus.Pending)
             .ToListAsync();
 
+    public async Task<IEnumerable<Invitation>> FindPendingByOrganizationAsync(int organizationId) =>
+        await _ctx.Invitations
+            .Where(i => i.OrganizationId == organizationId && i.Status == InvitationStatus.Pending)
+            .ToListAsync();
+
     public async Task<bool> ExistsAsync(int organizationId, int farmerProfileId) =>
         await _ctx.Invitations.AnyAsync(i =>
             i.OrganizationId == organizationId &&
