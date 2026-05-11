@@ -1,8 +1,9 @@
+using EcotrackPlatform.API.Organizations.Domain.Repositories;
+
 namespace EcotrackPlatform.API.Monitoringandcontrol.Application.Internal.CommandServices;
 
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Repositories;
-using EcotrackPlatform.API.Organization.Domain.Repositories;
 using System.Threading.Tasks;
 
 public class CreateTaskCommandService

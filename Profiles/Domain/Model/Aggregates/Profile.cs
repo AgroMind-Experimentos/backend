@@ -1,4 +1,4 @@
-using EcotrackPlatform.API.Organization.Domain.Model.Entities;
+using EcotrackPlatform.API.Organizations.Domain.Model.Entities;
 using EcotrackPlatform.API.Profiles.Domain.Model.ValueObjects;
 
 namespace EcotrackPlatform.API.Profiles.Domain.Model.Aggregates

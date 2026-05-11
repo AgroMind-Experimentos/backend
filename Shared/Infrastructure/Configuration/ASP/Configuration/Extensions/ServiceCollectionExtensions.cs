@@ -8,6 +8,11 @@ using EcotrackPlatform.API.Monitoringandcontrol.Application.Internal.CommandServ
 using EcotrackPlatform.API.Monitoringandcontrol.Application.Internal.QueryServices;
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Repositories;
 using EcotrackPlatform.API.Monitoringandcontrol.Infraestructure.Persistence.EFC.Respositories;
+using EcotrackPlatform.API.Organizations.Aplication.Internal.CommandServices;
+using EcotrackPlatform.API.Organizations.Aplication.Internal.QueryServices;
+using EcotrackPlatform.API.Organizations.Aplication.Services;
+using EcotrackPlatform.API.Organizations.Domain.Repositories;
+using EcotrackPlatform.API.Organizations.Infrastructure.Repositories;
 using EcotrackPlatform.API.Profiles.Application.Internal.CommandServices;
 using EcotrackPlatform.API.Profiles.Application.Internal.QueryServices;
 using EcotrackPlatform.API.Profiles.Domain.Repositories;
@@ -204,23 +209,23 @@ public static IServiceCollection AddSharedContext(this IServiceCollection servic
     public static IServiceCollection AddOrganizationContext(this IServiceCollection services)
     {
         // Repositories
-        services.AddScoped<Organization.Domain.Repositories.IOrganizationRepository,
-            Organization.Infrastructure.Repositories.OrganizationRepository>();
-        services.AddScoped<Organization.Domain.Repositories.ICropRepository,
-            Organization.Infrastructure.Repositories.CropRepository>();
-        services.AddScoped<Organization.Domain.Repositories.IInvitationRepository,
-            Organization.Infrastructure.Repositories.InvitationRepository>();
+        services.AddScoped<IOrganizationRepository,
+            OrganizationRepository>();
+        services.AddScoped<ICropRepository,
+            CropRepository>();
+        services.AddScoped<IInvitationRepository,
+            InvitationRepository>();
 
         // Services
-        services.AddScoped<Organization.Aplication.Services.IOrganizationCommandService,
-            Organization.Aplication.Internal.CommandServices.OrganizationCommandService>();
-        services.AddScoped<Organization.Aplication.Services.IOrganizationQueryService,
-            Organization.Aplication.Internal.QueryServices.OrganizationQueryService>();
-        services.AddScoped<Organization.Aplication.Services.ICropCommandService,
-            Organization.Aplication.Internal.CommandServices.CropCommandService>();
-        services.AddScoped<Organization.Aplication.Services.ICropQueryService,
-            Organization.Aplication.Internal.QueryServices.CropQueryService>();
-        services.AddScoped<Organization.Aplication.Internal.CommandServices.InvitationCommandService>();
+        services.AddScoped<IOrganizationCommandService,
+            OrganizationCommandService>();
+        services.AddScoped<IOrganizationQueryService,
+            OrganizationQueryService>();
+        services.AddScoped<ICropCommandService,
+            CropCommandService>();
+        services.AddScoped<ICropQueryService,
+            CropQueryService>();
+        services.AddScoped<InvitationCommandService>();
         return services;
     }
 
