@@ -9,5 +9,4 @@ public class PlotResource
     public double Area { get; set; }
     public string Cultivation { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
-    public List<int> MemberIds { get; set; } = new();
 }

@@ -1,54 +1,70 @@
-﻿using EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.Aggregates;
-using EcotrackPlatform.API.Organizations.Domain.Model.Entities;
-
-namespace EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
+﻿namespace EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 
 public class Plot
 {
-    public int Id { get; private set; }
-    public string Name { get; private set; } = default!;
-    public string Location { get; private set; } = default!;
+    public int Id { get; }
+    public string Name { get; private set; }
+    public string Location { get; private set; }
     public double Area { get; private set; }
-    
-    public string Cultivation { get; private set; } = default!;
+    public string Crop { get; private set; }
     public int OrganizationId { get; private set; }
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
-    
-    private readonly List<TaskAggregate> _tasks = new();
-    public List<TaskAggregate> Tasks => _tasks;
-    
+
     protected Plot() { }
 
-    public Plot(string name, string location, double area, string cultivation, int organizationId)
+    public Plot(string name, string location, double area, string crop, int organizationId)
     {
+        ValidateString(name, nameof(Name));
+        ValidateString(location, nameof(Location));
+        ValidateArea(area);
+        ValidateString(crop, nameof(Crop));
+
         Name = name;
         Location = location;
         Area = area;
-        Cultivation = cultivation;
+        Crop = crop;
         OrganizationId = organizationId;
         CreatedAt = DateTime.UtcNow;
     }
 
-    public void Update(string name, string location, double area, string cultivation)
+    public void Update(string? name, string? location, double? area, string? crop)
     {
-        Name = name;
-        Location = location;
-        Area = area;
-        Cultivation = cultivation;
+        if (name is not null)
+        {
+            ValidateString(name, nameof(Name));
+            Name = name;
+        }
+
+        if (location is not null)
+        {
+            ValidateString(location, nameof(Location));
+            Location = location;
+        }
+
+        if (area is not null)
+        {
+            ValidateArea(area.Value);
+            Area = area.Value;
+        }
+
+        if (crop is null) return;
+        ValidateString(crop, nameof(Crop));
+        Crop = crop;
     }
 
-    private readonly List<PlotMember> _members = new();
-    public List<PlotMember> Members => _members;
-
-    public void SyncMembers(IEnumerable<int> profileIds)
+    private static void ValidateString(string value, string propertyName)
     {
-        _members.Clear();
-
-        foreach (var profileId in profileIds.Distinct())
+        if (string.IsNullOrWhiteSpace(value))
         {
-            _members.Add(new PlotMember(profileId, Id));
+            throw new ArgumentException($"{propertyName} cannot be empty or whitespace.");
         }
     }
 
-    public bool HasMember(int profileId) => _members.Any(member => member.ProfileId == profileId);
+    private static void ValidateArea(double area)
+    {
+        if (area <= 0)
+        {
+            throw new ArgumentException("Area must be greater than zero.");
+        }
+    }
 }

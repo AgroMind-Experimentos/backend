@@ -21,7 +21,6 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<Organization> Organizations { get; set; }
     public DbSet<Plot> Plots { get; set; }
     public DbSet<OrganizationMember> OrganizationMembers { get; set; }
-    public DbSet<PlotMember> PlotMembers { get; set; }
     public DbSet<Invitation> Invitations { get; set; }
 
     // Report Module
@@ -29,16 +28,11 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
     
     protected override void OnConfiguring(DbContextOptionsBuilder builder)
     {
-        // Automatically set CreatedDate and UpdatedDate for entities
         builder.AddCreatedUpdatedInterceptor();
         base.OnConfiguring(builder);
     }
-
-        // --- DbSets mínimos (ajusta con tus entidades reales) ---
         public DbSet<Profile> Profiles => Set<Profile>();
         public DbSet<ProfileSettings> ProfileSettings => Set<ProfileSettings>();
-
-        // Si ya tienes AuthSession en Iam, puedes exponerlo:
         public DbSet<EcotrackPlatform.API.Iam.Domain.Model.Aggregates.AuthSession> AuthSessions => Set<EcotrackPlatform.API.Iam.Domain.Model.Aggregates.AuthSession>();
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -58,34 +52,17 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
                 .WithMany(o => o.Members)
                 .HasForeignKey(om => om.OrganizationId);
 
-            builder.Entity<PlotMember>()
-                .HasKey(cm => new { cm.ProfileId, cm.PlotId });
-
-            builder.Entity<PlotMember>()
-                .HasOne(cm => cm.Profile)
-                .WithMany()
-                .HasForeignKey(cm => cm.ProfileId);
-
             builder.Entity<Plot>()
-                .HasMany(c => c.Members)
-                .WithOne(cm => cm.Plot)
-                .HasForeignKey(cm => cm.PlotId);
+                .HasKey(p => p.Id);
         
             builder.Entity<ChecklistItem>()
                 .HasOne<Checklist>()
                 .WithMany(c => c.Items)
                 .HasForeignKey(ci => ci.ChecklistId);
 
-            // Módulos por bounded context
             builder.AddProfileModule();
-            
-            // Aplicar configuraciones del módulo Report
             builder.AddReportModule();
-            
-            // Aplicar configuraciones del módulo Monitoringandcontrol
             MonitoringExtensions.ApplyConfigurations(builder);
-            
-            // Apply naming convention to use snake_case for database objects
             builder.UseSnakeCaseNamingConvention();
         }
 }

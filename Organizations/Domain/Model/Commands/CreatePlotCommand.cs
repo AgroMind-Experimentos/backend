@@ -4,7 +4,6 @@ public record CreatePlotCommand(
     string Name,
     string Location,
     double Area,
-    string Cultivation,
-    int OrganizationId,
-    List<int>? MemberIds = null
+    string Crop,
+    int OrganizationId
 );

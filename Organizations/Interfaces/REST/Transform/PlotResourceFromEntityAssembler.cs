@@ -12,8 +12,7 @@ public static class PlotResourceFromEntityAssembler
             Name = entity.Name,
             Location = entity.Location,
             Area = entity.Area,
-            Cultivation = entity.Cultivation,
-            CreatedAt = entity.CreatedAt,
-            MemberIds = entity.Members.Select(member => member.ProfileId).ToList()
+            Cultivation = entity.Crop,
+            CreatedAt = entity.CreatedAt
         };
 }

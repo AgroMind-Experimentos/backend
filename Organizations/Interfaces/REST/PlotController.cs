@@ -1,5 +1,5 @@
-﻿using EcotrackPlatform.API.Organizations.Application.Services;
-using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
+﻿using EcotrackPlatform.API.Organizations.Application.Internal.CommandServices.Plots;
+using EcotrackPlatform.API.Organizations.Application.Services;
 using EcotrackPlatform.API.Organizations.Domain.Model.Queries;
 using EcotrackPlatform.API.Organizations.Interfaces.REST.Resources;
 using EcotrackPlatform.API.Organizations.Interfaces.REST.Transform;
@@ -9,54 +9,59 @@ namespace EcotrackPlatform.API.Organizations.Interfaces.REST;
 
 [ApiController]
 [Route("api/v1/plots")]
-public class PlotsController : ControllerBase
+public class PlotsController(
+    CreatePlotCommandService createService,
+    UpdatePlotCommandService updateService,
+    DeletePlotCommandService deleteService,
+    IPlotQueryService queryService)
+    : ControllerBase
 {
-    private readonly IPlotCommandService _commandService;
-    private readonly IPlotQueryService _queryService;
-
-    public PlotsController(IPlotCommandService commandService, IPlotQueryService queryService)
-    {
-        _commandService = commandService;
-        _queryService = queryService;
-    }
-
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePlotResource resource)
     {
-        try
+        var command = CreatePlotCommandFromResourceAssembler.ToCommand(resource);
+        var result = await createService.CreateAsync(command);
+
+        if (result.Success)
         {
-            var command = CreatePlotCommandFromResourceAssembler.ToCommand(resource);
-            Plot result = await _commandService.Handle(command);
-            var resourceResult = PlotResourceFromEntityAssembler.ToResource(result);
+            var resourceResult = PlotResourceFromEntityAssembler.ToResource(result.Plot!);
             return CreatedAtAction(nameof(GetById), new { id = resourceResult.Id }, resourceResult);
         }
-        catch (InvalidOperationException ex)
+
+        return result.Error switch
         {
-            return BadRequest(new { message = ex.Message });
-        }
+            CreatePlotError.OrganizationNotFound => NotFound(new { message = "organizationNotFound" }),
+            CreatePlotError.InvalidPlotData => BadRequest(new { message = "invalidPlotData" }),
+            _ => StatusCode(500)
+        };
     }
 
     [HttpPatch("{id:int}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdatePlotResource resource)
     {
-        try
-        {
-            var updated = await _commandService.UpdateAsync(id, resource.Name, resource.Location, resource.Area, resource.Cultivation, resource.MemberIds);
-            if (updated is null) return NotFound();
+        var result = await updateService.UpdateAsync(UpdatePlotCommandFromResourceAssembler.ToCommand(id, resource));
 
-            return Ok(PlotResourceFromEntityAssembler.ToResource(updated));
-        }
-        catch (InvalidOperationException ex)
+        if (result.Success)
         {
-            return BadRequest(new { message = ex.Message });
+            return Ok(PlotResourceFromEntityAssembler.ToResource(result.Plot!));
         }
+
+        return result.Error switch
+        {
+            UpdatePlotError.PlotNotFound => NotFound(new { message = "plotNotFound" }),
+            UpdatePlotError.OrganizationNotFound => NotFound(new { message = "organizationNotFound" }),
+            UpdatePlotError.ProfileNotFound => NotFound(new { message = "profileNotFound" }),
+            UpdatePlotError.ProfileNotInOrganization => BadRequest(new { message = "profileNotInOrganization" }),
+            UpdatePlotError.InvalidPlotData => BadRequest(new { message = "invalidPlotData" }),
+            _ => StatusCode(500)
+        };
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var query = new GetAllPlotsQuery();
-        var plots = await _queryService.Handle(query);
+        var plots = await queryService.Handle(query);
         var resources = plots.Select(PlotResourceFromEntityAssembler.ToResource);
         return Ok(resources);
     }
@@ -65,11 +70,11 @@ public class PlotsController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var query = new GetPlotByIdQuery(id);
-        var plot = await _queryService.Handle(query);
-        
+        var plot = await queryService.Handle(query);
+
         if (plot == null)
             return NotFound();
-        
+
         var resource = PlotResourceFromEntityAssembler.ToResource(plot);
         return Ok(resource);
     }
@@ -78,7 +83,7 @@ public class PlotsController : ControllerBase
     public async Task<IActionResult> GetByOrganizationId(int organizationId)
     {
         var query = new GetAllPlotsByOrganizationIdQuery(organizationId);
-        var plots = await _queryService.Handle(query);
+        var plots = await queryService.Handle(query);
         var resources = plots.Select(PlotResourceFromEntityAssembler.ToResource);
         return Ok(resources);
     }
@@ -86,8 +91,14 @@ public class PlotsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var deleted = await _commandService.Handle(id);
-        if (!deleted) return NotFound();
-        return NoContent();
+        var result = await deleteService.DeleteAsync(id);
+
+        if (result.Success) return NoContent();
+
+        return result.Error switch
+        {
+            DeletePlotError.PlotNotFound => NotFound(new { message = "plotNotFound" }),
+            _ => StatusCode(500)
+        };
     }
 }

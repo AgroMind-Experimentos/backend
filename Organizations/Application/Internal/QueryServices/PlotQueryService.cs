@@ -9,17 +9,17 @@ public class PlotQueryService(IPlotRepository plotRepository) : IPlotQueryServic
 {
     public async Task<Plot?> Handle(GetPlotByIdQuery query)
     {
-        return await plotRepository.FindByIdWithMembersAsync(query.Id);
+        return await plotRepository.FindByIdAsync(query.Id);
     }
 
     public async Task<IEnumerable<Plot>> Handle(GetAllPlotsQuery query)
     {
-        return await plotRepository.ListWithMembersAsync();
+        return await plotRepository.ListAsync();
     }
 
     public async Task<IEnumerable<Plot>> Handle(GetAllPlotsByOrganizationIdQuery query)
     {
-        return await plotRepository.FindByOrganizationIdWithMembersAsync(query.OrganizationId);
+        return await plotRepository.ListByOrganizationIdAsync(query.OrganizationId);
     }
 }
 

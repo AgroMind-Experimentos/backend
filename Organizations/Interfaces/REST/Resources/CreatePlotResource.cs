@@ -7,5 +7,4 @@ public class CreatePlotResource
     public double Area { get; set; }
     public string Cultivation { get; set; } = string.Empty;
     public int OrganizationId { get; set; }
-    public List<int>? MemberIds { get; set; }
 }
