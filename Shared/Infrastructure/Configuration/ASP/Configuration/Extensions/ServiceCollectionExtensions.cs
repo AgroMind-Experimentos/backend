@@ -235,6 +235,7 @@ public static IServiceCollection AddSharedContext(this IServiceCollection servic
         services.AddScoped<LoginCommandService>();
         services.AddScoped<RegisterCommandService>();
         services.AddScoped<LogoutCommandService>();
+        services.AddScoped<ChangePasswordCommandService>();
         services.AddScoped<IAuthSessionRepository, AuthSessionRepository>();
         services.AddScoped<IProfileRepository, ProfileRepository>();
         return services;

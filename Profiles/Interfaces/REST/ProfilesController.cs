@@ -71,8 +71,7 @@ namespace EcotrackPlatform.API.Profiles.Interfaces.REST
         [SwaggerOperation(Summary = "Crear un nuevo usuario")]
         public async Task<IActionResult> Create([FromBody] CreateProfileResource resource)
         {
-            var cmd = CreateProfileCommandFromResourceAssembler.ToCommand(resource);
-            var entity = await _commands.CreateAsync(cmd.Email, cmd.DisplayName, cmd.Password, cmd.Role);
+            var entity = await _commands.CreateAsync(CreateProfileCommandFromResourceAssembler.ToCommand(resource));
             var res = ProfileResourceFromEntityAssembler.ToResource(entity);
             return CreatedAtAction(nameof(GetById), new { id = res.Id }, res);
         }
@@ -81,10 +80,9 @@ namespace EcotrackPlatform.API.Profiles.Interfaces.REST
         [SwaggerOperation(Summary = "Actualizar un usuario")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateProfileResource resource)
         {
-            var cmd = UpdateProfileCommandFromResourceAssembler.ToCommand(id, resource);
             try
             {
-                var updated = await _commands.UpdateAsync(cmd.Id, cmd.DisplayName, cmd.Email);
+                var updated = await _commands.UpdateAsync(UpdateProfileCommandFromResourceAssembler.ToCommand(id, resource));
                 if (updated is null) return NotFound();
                 return Ok(ProfileResourceFromEntityAssembler.ToResource(updated));
             }
@@ -98,7 +96,7 @@ namespace EcotrackPlatform.API.Profiles.Interfaces.REST
         [SwaggerOperation(Summary = "Eliminar un usuario")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var ok = await _commands.DeleteAsync(id);
+            var ok = await _commands.DeleteAsync(DeleteProfileCommandFromResourceAssembler.ToCommand(id));
             return ok ? NoContent() : NotFound();
         }
     }

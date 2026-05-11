@@ -13,18 +13,15 @@ namespace EcotrackPlatform.API.Profiles.Interfaces.REST
     {
         private readonly SettingsQueryService _queries;
         private readonly SettingsCommandService _commands;
-        private readonly ProfileCommandService _profilesCommands;
         private readonly IAuthSessionRepository _sessions;
 
         public SettingsController(
             SettingsQueryService queries,
             SettingsCommandService commands,
-            ProfileCommandService profilesCommands,
             IAuthSessionRepository sessions)
         {
             _queries = queries;
             _commands = commands;
-            _profilesCommands = profilesCommands;
             _sessions = sessions;
         }
 
@@ -59,18 +56,6 @@ namespace EcotrackPlatform.API.Profiles.Interfaces.REST
                 pid.Value, r.NotificationsEmail, r.Locale, r.Theme);
 
             return Ok(new SettingsResource(updated.NotificationsEmail, updated.Locale, updated.Theme));
-        }
-
-        [HttpPost("password")]
-        [SwaggerOperation(Summary = "Cambiar contraseña del usuario actual")]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordResource r)
-        {
-            var pid = await GetCurrentProfileIdAsync();
-            if (pid is null) return Unauthorized();
-
-            var ok = await _profilesCommands.ChangePasswordAsync(pid.Value, r.CurrentPassword, r.NewPassword);
-            if (!ok) return BadRequest(new { message = "Current password is invalid." });
-            return Ok(new { message = "Password updated." });
         }
     }
 }

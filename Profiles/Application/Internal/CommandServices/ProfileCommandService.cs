@@ -1,82 +1,78 @@
+using EcotrackPlatform.API.Iam.Domain.Model.Commands;
 using EcotrackPlatform.API.Profiles.Domain.Model.Aggregates;
-using EcotrackPlatform.API.Profiles.Domain.Model.ValueObjects;
+using EcotrackPlatform.API.Profiles.Domain.Model.Commands;
 using EcotrackPlatform.API.Profiles.Domain.Repositories;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
 using Microsoft.AspNetCore.Identity;
 
 namespace EcotrackPlatform.API.Profiles.Application.Internal.CommandServices
 {
-    public class ProfileCommandService
+    public class ProfileCommandService(IProfileRepository profiles, IUnitOfWork uow)
     {
-        private readonly IProfileRepository _profiles;
-        private readonly IUnitOfWork _uow;
         private readonly PasswordHasher<Profile> _hasher = new();
 
-        public ProfileCommandService(IProfileRepository profiles, IUnitOfWork uow)
+        public async Task<Profile> CreateAsync(CreateProfileCommand command)
         {
-            _profiles = profiles;
-            _uow = uow;
-        }
-
-        public async Task<Profile> CreateAsync(string email, string displayName, string plainPassword, UserRole role)
-        {
-            var existing = await _profiles.FindByEmailAsync(email);
+            var existing = await profiles.FindByEmailAsync(command.Email);
             if (existing is not null) throw new InvalidOperationException("Email already in use.");
 
-            // Generamos el hash de la contraseña antes de crear el perfil
-            var hash = _hasher.HashPassword(null, plainPassword); // Generamos el hash de la contraseña
+            var hash = _hasher.HashPassword(null, command.Password);
+            var profile = new Profile(command.Email, command.DisplayName, hash, command.Role);
 
-            // Ahora creamos el perfil pasando el hash generado
-            var profile = new Profile(email, displayName, hash, role); // Le pasamos el passwordHash correctamente
-
-            // Añadimos el perfil a la base de datos
-            await _profiles.AddAsync(profile);
-            await _uow.CompleteAsync();
+            await profiles.AddAsync(profile);
+            await uow.CompleteAsync();
             return profile;
         }
 
-        public async Task<Profile?> UpdateAsync(int id, string? displayName = null, string? email = null)
+        public async Task<Profile?> UpdateAsync(UpdateProfileCommand command)
         {
-            var entity = await _profiles.FindByIdAsync(id);
+            var entity = await profiles.FindByIdAsync(command.Id);
             if (entity is null) return null;
 
+            var displayName = command.DisplayName;
             if (!string.IsNullOrWhiteSpace(displayName))
                 entity.Rename(displayName);
 
+            var email = command.Email;
             if (!string.IsNullOrWhiteSpace(email))
             {
-                var exists = await _profiles.FindByEmailAsync(email);
-                if (exists is not null && exists.Id != id) throw new InvalidOperationException("Email already in use.");
-                // pequeño “setter” directo; si prefieres, agrega método en aggregate
-                typeof(Profile).GetProperty("Email")!.SetValue(entity, email);
+                var existing = await profiles.FindByEmailAsync(email);
+
+                var isInUseBySomeoneElse = existing is not null && existing.Id == command.Id;
+                if (isInUseBySomeoneElse)
+                {
+                    throw new InvalidOperationException("Email already in use.");
+                }
+
+                entity.SetEmail(email);
             }
 
-            _profiles.Update(entity);
-            await _uow.CompleteAsync();
+            profiles.Update(entity);
+            await uow.CompleteAsync();
             return entity;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(DeleteProfileCommand command)
         {
-            var entity = await _profiles.FindByIdAsync(id);
+            var entity = await profiles.FindByIdAsync(command.Id);
             if (entity is null) return false;
-            _profiles.Remove(entity);
-            await _uow.CompleteAsync();
+            profiles.Remove(entity);
+            await uow.CompleteAsync();
             return true;
         }
 
-        public async Task<bool> ChangePasswordAsync(int id, string currentPassword, string newPassword)
+        public async Task<bool> ChangePasswordAsync(ChangePasswordCommand command)
         {
-            var entity = await _profiles.FindByIdAsync(id);
+            var entity = await profiles.FindByIdAsync(command.Id);
             if (entity is null) return false;
 
-            var result = _hasher.VerifyHashedPassword(entity, entity.PasswordHash, currentPassword);
+            var result = _hasher.VerifyHashedPassword(entity, entity.PasswordHash, command.CurrentPassword);
             if (result == PasswordVerificationResult.Failed) return false;
 
-            var newHash = _hasher.HashPassword(entity, newPassword);
-            entity.SetPasswordHash(newHash); // Establecemos el nuevo hash
-            _profiles.Update(entity);
-            await _uow.CompleteAsync();
+            var newHash = _hasher.HashPassword(entity, command.NewPassword);
+            entity.SetPasswordHash(newHash);
+            profiles.Update(entity);
+            await uow.CompleteAsync();
             return true;
         }
     }

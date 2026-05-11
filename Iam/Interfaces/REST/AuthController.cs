@@ -1,6 +1,8 @@
 using EcotrackPlatform.API.Iam.Application.Internal.CommandServices;
+using EcotrackPlatform.API.Iam.Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using EcotrackPlatform.API.Iam.Interfaces.REST.Resources;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace EcotrackPlatform.API.Iam.Interfaces.REST;
 
@@ -9,7 +11,9 @@ namespace EcotrackPlatform.API.Iam.Interfaces.REST;
 public class AuthController(
     RegisterCommandService registerService,
     LoginCommandService loginService,
-    LogoutCommandService logoutService)
+    LogoutCommandService logoutService,
+    ChangePasswordCommandService changePasswordService,
+    IAuthSessionRepository sessions)
     : ControllerBase
 {
     [HttpPost("register")]
@@ -93,5 +97,37 @@ public class AuthController(
             LogoutError.SessionNotFoundOrInactive => NotFound(new { message = "activeSessionNotFound" }),
             _ => StatusCode(500)
         };
+    }
+
+    [HttpPost("password")]
+    [SwaggerOperation(Summary = "Cambiar contraseña del usuario actual")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordResource resource)
+    {
+        var pid = await GetCurrentProfileIdAsync();
+        if (pid is null) return Unauthorized();
+
+        var result = await changePasswordService.ChangePasswordAsync((int)pid, resource.CurrentPassword, resource.NewPassword);
+
+        if (result.Success)
+        {
+            return Ok(new { message = "updateSuccess" });
+        }
+
+        return result.Error switch
+        {
+            ChangePasswordError.InvalidInput => BadRequest(new { message = "badRequest" }),
+            ChangePasswordError.InsecurePassword => BadRequest(new { message = "insecurePassword" }),
+            ChangePasswordError.InvalidCurrentPassword => BadRequest(new { message = "invalidCurrentPassword" }),
+            ChangePasswordError.ProfileNotFound => NotFound(new { message = "profileNotFound" }),
+            _ => StatusCode(500)
+        };
+    }
+
+    private async Task<int?> GetCurrentProfileIdAsync()
+    {
+        if (!Request.Cookies.TryGetValue("sid", out var sid)) return null;
+        if (!Guid.TryParse(sid, out var sidGuid)) return null;
+        var s = await sessions.FindByIdAsync(sidGuid);
+        return (s is not null && s.IsActive()) ? s.ProfileId : null;
     }
 }
