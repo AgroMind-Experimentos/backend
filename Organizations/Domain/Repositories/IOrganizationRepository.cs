@@ -1,5 +1,5 @@
-﻿﻿using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
- using EcotrackPlatform.API.Shared.Domain.Repositories;
+﻿using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
+using EcotrackPlatform.API.Shared.Domain.Repositories;
 
  namespace EcotrackPlatform.API.Organizations.Domain.Repositories;
 
