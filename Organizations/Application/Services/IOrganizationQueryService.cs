@@ -7,5 +7,5 @@ public interface IOrganizationQueryService
 {
     Task<Organization?> Handle(GetOrganizationByIdQuery query);
     Task<IEnumerable<Organization>> Handle(GetAllOrganizationsQuery query);
-    Task<IEnumerable<Organization>> HandleByMemberAsync(int profileId);
+    Task<IEnumerable<Organization>> HandleByMemberAsync(GetOrganizationByMemberIdQuery query);
 }

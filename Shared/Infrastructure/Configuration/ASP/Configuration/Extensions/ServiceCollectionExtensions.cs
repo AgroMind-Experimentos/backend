@@ -9,6 +9,7 @@ using EcotrackPlatform.API.Monitoringandcontrol.Application.Internal.QueryServic
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Repositories;
 using EcotrackPlatform.API.Monitoringandcontrol.Infraestructure.Persistence.EFC.Respositories;
 using EcotrackPlatform.API.Organizations.Application.Internal.CommandServices;
+using EcotrackPlatform.API.Organizations.Application.Internal.CommandServices.Organizations;
 using EcotrackPlatform.API.Organizations.Application.Internal.CommandServices.Plots;
 using EcotrackPlatform.API.Organizations.Application.Internal.QueryServices;
 using EcotrackPlatform.API.Organizations.Application.Services;
@@ -218,8 +219,9 @@ public static IServiceCollection AddSharedContext(this IServiceCollection servic
             InvitationRepository>();
 
         // Services
-        services.AddScoped<IOrganizationCommandService,
-            OrganizationCommandService>();
+        services.AddScoped<CreateOrganizationCommandService>();
+        services.AddScoped<UpdateOrganizationCommandService>();
+        services.AddScoped<DeleteOrganizationCommandService>();
         services.AddScoped<IOrganizationQueryService,
             OrganizationQueryService>();
         services.AddScoped<CreatePlotCommandService>();

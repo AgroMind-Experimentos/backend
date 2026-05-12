@@ -17,9 +17,9 @@ public class OrganizationQueryService(IOrganizationRepository organizationReposi
         return await organizationRepository.ListWithMembersAsync();
     }
 
-    public async Task<IEnumerable<Organization>> HandleByMemberAsync(int profileId)
+    public async Task<IEnumerable<Organization>> HandleByMemberAsync(GetOrganizationByMemberIdQuery query)
     {
-        return await organizationRepository.ListByMemberAsync(profileId);
+        return await organizationRepository.ListByMemberAsync(query.Id);
     }
 }
 

@@ -5,32 +5,50 @@ namespace EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 public class Organization
 {
     public int Id { get; private set; }
-    public string Name { get; private set; }
-    public string Description { get; private set; }
-    public string Location { get; private set; }
+    public string Name { get; private set; } = default!;
+    public string Description { get; private set; } = default!;
+    public string Location { get; private set; } = default!;
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
-    
+
     private readonly List<OrganizationMember> _members = new();
     public List<OrganizationMember> Members => _members;
-    
+
     private readonly List<Plot> _plots = new();
     public List<Plot> Plots => _plots;
-    
+
     protected Organization() { }
-    
+
     public Organization(string name, string description, string location)
     {
-        Name = name ?? throw new ArgumentNullException(nameof(name));
+        ValidateString(name, nameof(Name));
+        ValidateString(description, nameof(Description));
+        ValidateString(location, nameof(Location));
+
+        Name = name;
         Description = description;
         Location = location;
         CreatedAt = DateTime.UtcNow;
     }
-    
+
     public void Update(string? name, string? description, string? location)
     {
-        Name = string.IsNullOrWhiteSpace(name) ? Name : name;
-        Description = string.IsNullOrWhiteSpace(description) ? Description : description;
-        Location = string.IsNullOrWhiteSpace(location) ? Location : location;
+        if (name is not null)
+        {
+            ValidateString(name, nameof(Name));
+            Name = name;
+        }
+
+        if (description is not null)
+        {
+            ValidateString(description, nameof(Description));
+            Description = description;
+        }
+
+        if (location is not null)
+        {
+            ValidateString(location, nameof(Location));
+            Location = location;
+        }
     }
 
     public void SyncMembers(IEnumerable<int> profileIds)
@@ -43,5 +61,11 @@ public class Organization
         }
     }
 
-    public bool HasMember(int profileId) => _members.Any(member => member.ProfileId == profileId);
+    private static void ValidateString(string value, string propertyName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentException($"{propertyName} cannot be empty or whitespace.");
+        }
+    }
 }
