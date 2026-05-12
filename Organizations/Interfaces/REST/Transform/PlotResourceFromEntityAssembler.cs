@@ -9,9 +9,10 @@ public static class PlotResourceFromEntityAssembler
         => new PlotResource
         {
             Id = entity.Id,
+            OrganizationId = entity.OrganizationId,
+            Area = entity.Area,
             Name = entity.Name,
             Location = entity.Location,
-            Area = entity.Area,
             Cultivation = entity.Crop,
             CreatedAt = entity.CreatedAt
         };

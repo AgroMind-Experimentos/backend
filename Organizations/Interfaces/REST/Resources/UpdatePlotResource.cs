@@ -6,5 +6,4 @@ public class UpdatePlotResource
     public string? Location { get; set; }
     public double? Area { get; set; }
     public string? Crop { get; set; }
-    public List<int>? MemberIds { get; set; }
 }
