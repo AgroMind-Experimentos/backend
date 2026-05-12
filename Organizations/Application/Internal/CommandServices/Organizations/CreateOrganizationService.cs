@@ -27,18 +27,16 @@ public class CreateOrganizationCommandService(
             var org = new Organization(
                 command.Name,
                 command.Description,
-                command.Location
+                command.Location,
+                command.AgronomistId
             );
 
             await repository.AddAsync(org);
             await unitOfWork.CompleteAsync();
 
-            if (command.AgronomistId.HasValue)
-            {
-                org.SyncMembers(new[] { command.AgronomistId.Value });
-                repository.Update(org);
-                await unitOfWork.CompleteAsync();
-            }
+            org.SyncMembers([command.AgronomistId]);
+            repository.Update(org);
+            await unitOfWork.CompleteAsync();
 
             return new CreateOrganizationResult(Organization: org);
         }

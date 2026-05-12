@@ -38,6 +38,11 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<Organization>()
+                .HasOne(o => o.Profile)
+                .WithMany(p => p.Organizations)
+                .HasForeignKey(o => o.AgronomistOwnerId);
             
             builder.Entity<OrganizationMember>()
                 .HasKey(om => new { om.ProfileId, om.OrganizationId });

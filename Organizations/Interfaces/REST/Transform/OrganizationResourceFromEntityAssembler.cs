@@ -12,6 +12,7 @@ public static class OrganizationResourceFromEntityAssembler
             Name = entity.Name,
             Description = entity.Description,
             Location = entity.Location,
+            AgronomistId = entity.AgronomistOwnerId,
             CreatedAt = entity.CreatedAt,
             MemberIds = entity.Members.Select(member => member.ProfileId).ToList()
         };
