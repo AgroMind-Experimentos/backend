@@ -1,4 +1,5 @@
 ﻿using EcotrackPlatform.API.Organizations.Domain.Model.Entities;
+using EcotrackPlatform.API.Profiles.Domain.Model.Aggregates;
 
 namespace EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 
@@ -16,9 +17,12 @@ public class Organization
     private readonly List<Plot> _plots = new();
     public List<Plot> Plots => _plots;
 
+    public int AgronomistOwnerId { get; private set; }
+    public Profile Profile { get; private set; }
+
     protected Organization() { }
 
-    public Organization(string name, string description, string location)
+    public Organization(string name, string description, string location, int agronomistOwnerId)
     {
         ValidateString(name, nameof(Name));
         ValidateString(description, nameof(Description));
@@ -28,6 +32,7 @@ public class Organization
         Description = description;
         Location = location;
         CreatedAt = DateTime.UtcNow;
+        AgronomistOwnerId = agronomistOwnerId;
     }
 
     public void Update(string? name, string? description, string? location)

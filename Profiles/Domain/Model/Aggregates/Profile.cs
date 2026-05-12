@@ -1,3 +1,4 @@
+using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Organizations.Domain.Model.Entities;
 using EcotrackPlatform.API.Profiles.Domain.Model.ValueObjects;
 
@@ -14,6 +15,8 @@ namespace EcotrackPlatform.API.Profiles.Domain.Model.Aggregates
         
         private readonly List<OrganizationMember> _memberships = new();
         public List<OrganizationMember> Memberships => _memberships;
+
+        public List<Organization> Organizations { get; private set; }
 
         protected Profile() { } // EF
 
