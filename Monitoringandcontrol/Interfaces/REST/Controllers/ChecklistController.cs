@@ -13,7 +13,7 @@ namespace EcotrackPlatform.API.Monitoringandcontrol.Interfaces.REST.Controllers;
 
 
 [ApiController]
-[Route("api/checklists")]
+[Route("api/v1/checklists")]
 [Tags("Checklists")]
 public class ChecklistController : ControllerBase
 {

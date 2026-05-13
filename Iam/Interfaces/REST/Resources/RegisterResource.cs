@@ -1,4 +1,4 @@
-﻿using EcotrackPlatform.API.Profile.Domain.Model.ValueObjects;
+﻿using EcotrackPlatform.API.Profiles.Domain.Model.ValueObjects;
 
 namespace EcotrackPlatform.API.Iam.Interfaces.REST.Resources;
 

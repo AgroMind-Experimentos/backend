@@ -4,7 +4,7 @@ using System.Text;
 using EcotrackPlatform.API.Iam.Domain.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using ProfileAgg = EcotrackPlatform.API.Profile.Domain.Model.Aggregates.Profile;
+using EcotrackPlatform.API.Profiles.Domain.Model.Aggregates;
 
 namespace EcotrackPlatform.API.Iam.Infrastructure.Tokens;
 
@@ -14,7 +14,7 @@ public class TokenService : ITokenService
 
     public TokenService(IConfiguration config) => _config = config;
 
-    public string GenerateToken(ProfileAgg profile)
+    public string GenerateToken(Profile profile)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

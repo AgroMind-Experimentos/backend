@@ -8,7 +8,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace EcotrackPlatform.API.Monitoringandcontrol.Interfaces.REST.Controllers;
 
 [ApiController]
-[Route("api/logbooks")]
+[Route("api/v1/logbooks")]
 [Tags("Logbooks")]
 
 public class LogbookController : ControllerBase

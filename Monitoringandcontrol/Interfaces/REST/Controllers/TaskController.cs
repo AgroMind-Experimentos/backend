@@ -8,7 +8,7 @@ using EcotrackPlatform.API.Monitoringandcontrol.Interfaces.REST.Resources.Reques
 namespace EcotrackPlatform.API.Monitoringandcontrol.Interfaces.REST.Controllers;
 
 [ApiController]
-[Route("api/tasks")]
+[Route("api/v1/tasks")]
 [Tags("Tasks")]
 public class TaskController : ControllerBase
 {
@@ -37,7 +37,7 @@ public class TaskController : ControllerBase
     {
         try
         {
-            var taskId = await _createTaskCommandService.Handle(request.Title, request.Description, request.OrganizationId, request.CropId, request.ResponsibleId);
+            var taskId = await _createTaskCommandService.Handle(request.Title, request.Description, request.OrganizationId, request.PlotId, request.ResponsibleId);
             var tasks = await _getTasksQueryService.Handle();
             var task = tasks.Find(t => t.Id == taskId);
             return CreatedAtAction(nameof(GetById), new { taskId }, TaskAssembler.ToCreatedResource(task!));

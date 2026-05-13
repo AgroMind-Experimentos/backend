@@ -1,8 +1,8 @@
-using ProfileAgg = EcotrackPlatform.API.Profile.Domain.Model.Aggregates.Profile;
+using EcotrackPlatform.API.Profiles.Domain.Model.Aggregates;
 
 namespace EcotrackPlatform.API.Iam.Domain.Services;
 
 public interface ITokenService
 {
-    string GenerateToken(ProfileAgg profile);
+    string GenerateToken(Profile profile);
 }

@@ -8,16 +8,24 @@ using EcotrackPlatform.API.Monitoringandcontrol.Application.Internal.CommandServ
 using EcotrackPlatform.API.Monitoringandcontrol.Application.Internal.QueryServices;
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Repositories;
 using EcotrackPlatform.API.Monitoringandcontrol.Infraestructure.Persistence.EFC.Respositories;
-using EcotrackPlatform.API.Profile.Application.Internal.CommandServices;
-using EcotrackPlatform.API.Profile.Application.Internal.QueryServices;
-using EcotrackPlatform.API.Profile.Domain.Repositories;
-using EcotrackPlatform.API.Profile.Infrastructure.Repositories;
+using EcotrackPlatform.API.Organizations.Application.Internal.CommandServices;
+using EcotrackPlatform.API.Organizations.Application.Internal.CommandServices.Organizations;
+using EcotrackPlatform.API.Organizations.Application.Internal.CommandServices.Plots;
+using EcotrackPlatform.API.Organizations.Application.Internal.QueryServices;
+using EcotrackPlatform.API.Organizations.Application.Services;
+using EcotrackPlatform.API.Organizations.Domain.Repositories;
+using EcotrackPlatform.API.Organizations.Infrastructure.Repositories;
+using EcotrackPlatform.API.Profiles.Application.Internal.CommandServices;
+using EcotrackPlatform.API.Profiles.Application.Internal.QueryServices;
+using EcotrackPlatform.API.Profiles.Domain.Repositories;
+using EcotrackPlatform.API.Profiles.Infrastructure.Repositories;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
 using EcotrackPlatform.API.Shared.Infrastructure.Interfaces.ASP.Configuration;
 using EcotrackPlatform.API.Shared.Infrastructure.Persistence.Connection;
 using EcotrackPlatform.API.Shared.Infrastructure.Persistence.EFC.Configuration;
 using EcotrackPlatform.API.Shared.Infrastructure.Persistence.Repositories;
 using EcotrackPlatform.API.Shared.Infrastructure.Security.Authentication;
+using EcotrackPlatform.API.Shared.Infrastructure.Security.Cors;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -48,15 +56,29 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddCorsConfiguration(this IServiceCollection services)
+    public static IServiceCollection AddCorsConfiguration(this IServiceCollection services, IWebHostEnvironment environment)
     {
-        services.AddCors(options =>
+        try
         {
-            options.AddPolicy("AllowAllPolicy", policy =>
-                policy.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader());
-        });
+            var isProduction = environment.IsProduction();
+            var allowedOrigins = CorsOriginLoader.GetAllowedOrigins(isProduction);
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(CorsOriginLoader.GetPolicyName(isProduction), policy =>
+                {
+                    policy.WithOrigins(allowedOrigins)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
+                });
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[FATAL] Failed to configure CORS: {ex.Message}");
+            throw;
+        }
 
         return services;
     }
@@ -189,30 +211,35 @@ public static IServiceCollection AddSharedContext(this IServiceCollection servic
     public static IServiceCollection AddOrganizationContext(this IServiceCollection services)
     {
         // Repositories
-        services.AddScoped<Organization.Domain.Repositories.IOrganizationRepository,
-            Organization.Infrastructure.Repositories.OrganizationRepository>();
-        services.AddScoped<Organization.Domain.Repositories.ICropRepository,
-            Organization.Infrastructure.Repositories.CropRepository>();
-        services.AddScoped<Organization.Domain.Repositories.IInvitationRepository,
-            Organization.Infrastructure.Repositories.InvitationRepository>();
+        services.AddScoped<IOrganizationRepository,
+            OrganizationRepository>();
+        services.AddScoped<IPlotRepository,
+            PlotRepository>();
+        services.AddScoped<IInvitationRepository,
+            InvitationRepository>();
 
         // Services
-        services.AddScoped<Organization.Aplication.Services.IOrganizationCommandService,
-            Organization.Aplication.Internal.CommandServices.OrganizationCommandService>();
-        services.AddScoped<Organization.Aplication.Services.IOrganizationQueryService,
-            Organization.Aplication.Internal.QueryServices.OrganizationQueryService>();
-        services.AddScoped<Organization.Aplication.Services.ICropCommandService,
-            Organization.Aplication.Internal.CommandServices.CropCommandService>();
-        services.AddScoped<Organization.Aplication.Services.ICropQueryService,
-            Organization.Aplication.Internal.QueryServices.CropQueryService>();
-        services.AddScoped<Organization.Aplication.Internal.CommandServices.InvitationCommandService>();
+        services.AddScoped<CreateOrganizationCommandService>();
+        services.AddScoped<UpdateOrganizationCommandService>();
+        services.AddScoped<DeleteOrganizationCommandService>();
+        services.AddScoped<IOrganizationQueryService,
+            OrganizationQueryService>();
+        services.AddScoped<CreatePlotCommandService>();
+        services.AddScoped<UpdatePlotCommandService>();
+        services.AddScoped<DeletePlotCommandService>();
+        services.AddScoped<IPlotQueryService,
+            PlotQueryService>();
+        services.AddScoped<InvitationCommandService>();
         return services;
     }
 
     public static IServiceCollection AddIamContext(this IServiceCollection services)
     {
         services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped<AuthCommandService>();
+        services.AddScoped<LoginCommandService>();
+        services.AddScoped<RegisterCommandService>();
+        services.AddScoped<LogoutCommandService>();
+        services.AddScoped<ChangePasswordCommandService>();
         services.AddScoped<IAuthSessionRepository, AuthSessionRepository>();
         services.AddScoped<IProfileRepository, ProfileRepository>();
         return services;

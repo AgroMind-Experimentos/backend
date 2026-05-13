@@ -4,7 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddRoutingAndControllers()
-    .AddCorsConfiguration()
+    .AddCorsConfiguration(builder.Environment)
     .AddDatabaseConfiguration(builder.Environment)
     .AddJwtAuthentication(builder.Configuration)
     .AddSwaggerConfiguration()
@@ -18,6 +18,6 @@ builder.Services
 var app = builder.Build();
 
 app.EnsureDatabaseCreated()
-    .ConfigureMiddleware();
+    .ConfigureMiddleware(builder.Environment);
 
 app.Run();

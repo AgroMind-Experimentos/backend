@@ -9,7 +9,7 @@ public class Logbook
     public DateTime Duration {get; private set;}
     public int Volume {get; private set;}
     public string Evident {get; private set;}
-    public int ParcelId { get;  private set; }
+    public int PlotId { get;  private set; }
     
     private Logbook(){}
     
