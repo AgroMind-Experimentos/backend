@@ -1,31 +1,44 @@
-using Microsoft.AspNetCore.Mvc;
 using EcotrackPlatform.API.Iam.Application.Internal.CommandServices;
+using EcotrackPlatform.API.Iam.Domain.Repositories;
+using Microsoft.AspNetCore.Mvc;
 using EcotrackPlatform.API.Iam.Interfaces.REST.Resources;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace EcotrackPlatform.API.Iam.Interfaces.REST;
 
 [ApiController]
-[Route("auth")]
-public class AuthController : ControllerBase
+[Route("api/v1/auth")]
+public class AuthController(
+    RegisterCommandService registerService,
+    LoginCommandService loginService,
+    LogoutCommandService logoutService,
+    ChangePasswordCommandService changePasswordService,
+    IAuthSessionRepository sessions)
+    : ControllerBase
 {
-    private readonly AuthCommandService _auth;
-
-    public AuthController(AuthCommandService auth) { _auth = auth; }
-
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterResource body)
     {
-        var profile = await _auth.RegisterAsync(body.Email, body.Password, body.DisplayName);
-        
-        if (profile is null) 
-            return BadRequest(new { message = "Email already in use or invalid data. Password must be at least 6 characters." });
+        var result = await registerService.RegisterAsync(body.Email, body.Password, body.DisplayName, body.Role);
 
-        return Ok(new { 
-            message = "Registration successful. You can now log in.",
-            userId = profile.Id,
-            email = profile.Email,
-            displayName = profile.DisplayName
-        });
+        if (result.Success)
+        {
+            return Ok(new
+            {
+                message = "registerSuccess",
+                userId = result.Profile!.Id,
+                email = result.Profile.Email,
+                displayName = result.Profile.DisplayName
+            });
+        }
+
+        return result.Error switch
+        {
+            RegisterError.EmailAlreadyExists => Conflict(new { message = "emailAlreadyInUse" }),
+            RegisterError.InsecurePassword => BadRequest(new { message = "insecurePassword" }),
+            RegisterError.InvalidInput => BadRequest(new { message = "badRequest" }),
+            _ => StatusCode(500)
+        };
     }
 
     [HttpPost("login")]
@@ -33,18 +46,35 @@ public class AuthController : ControllerBase
     {
         var ua = Request.Headers.UserAgent.ToString();
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
-        var session = await _auth.LoginAsync(body.Email, body.Password, ua, ip);
-        if (session is null) return Unauthorized(new { message = "Invalid credentials" });
 
-        Response.Cookies.Append("sid", session.Id.ToString(), new CookieOptions
+        var result = await loginService.LoginAsync(body.Email, body.Password, ua, ip);
+
+        if (result.Success)
         {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Lax,
-            Expires = session.ExpiresAt
-        });
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = result.Session!.ExpiresAt
+            };
 
-        return Ok(new { message = "Logged in" });
+            Response.Cookies.Append("token", result.Token!, cookieOptions);
+            Response.Cookies.Append("sid", result.Session.Id.ToString(), cookieOptions);
+
+            return Ok(new
+            {
+                expiresAt = result.Session.ExpiresAt,
+                userId = result.Session.ProfileId,
+                role = result.User!.Role.ToString(),
+                displayName = result.User.DisplayName
+            });
+        }
+
+        return result.Error switch
+        {
+            LoginError.InvalidCredentials => Unauthorized(new { message = "invalidCredentials" }),
+            _ => StatusCode(500)
+        };
     }
 
     [HttpPost("logout")]
@@ -52,13 +82,52 @@ public class AuthController : ControllerBase
     {
         if (!Request.Cookies.TryGetValue("sid", out var sid) || !Guid.TryParse(sid, out var id))
         {
-            // idempotente
             Response.Cookies.Delete("sid");
-            return Ok(new { message = "Logged out" });
+            return Ok(new { message = "logoutSuccess" });
         }
 
-        await _auth.LogoutAsync(id);
+        var result = await logoutService.LogoutAsync(id);
         Response.Cookies.Delete("sid");
-        return Ok(new { message = "Logged out" });
+        Response.Cookies.Delete("token");
+
+        if (result.Success) return Ok(new { message = "logoutSuccess" });
+
+        return result.Error switch
+        {
+            LogoutError.SessionNotFoundOrInactive => NotFound(new { message = "activeSessionNotFound" }),
+            _ => StatusCode(500)
+        };
+    }
+
+    [HttpPost("password")]
+    [SwaggerOperation(Summary = "Cambiar contraseña del usuario actual")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordResource resource)
+    {
+        var pid = await GetCurrentProfileIdAsync();
+        if (pid is null) return Unauthorized();
+
+        var result = await changePasswordService.ChangePasswordAsync((int)pid, resource.CurrentPassword, resource.NewPassword);
+
+        if (result.Success)
+        {
+            return Ok(new { message = "updateSuccess" });
+        }
+
+        return result.Error switch
+        {
+            ChangePasswordError.InvalidInput => BadRequest(new { message = "badRequest" }),
+            ChangePasswordError.InsecurePassword => BadRequest(new { message = "insecurePassword" }),
+            ChangePasswordError.InvalidCurrentPassword => BadRequest(new { message = "invalidCurrentPassword" }),
+            ChangePasswordError.ProfileNotFound => NotFound(new { message = "profileNotFound" }),
+            _ => StatusCode(500)
+        };
+    }
+
+    private async Task<int?> GetCurrentProfileIdAsync()
+    {
+        if (!Request.Cookies.TryGetValue("sid", out var sid)) return null;
+        if (!Guid.TryParse(sid, out var sidGuid)) return null;
+        var s = await sessions.FindByIdAsync(sidGuid);
+        return (s is not null && s.IsActive()) ? s.ProfileId : null;
     }
 }

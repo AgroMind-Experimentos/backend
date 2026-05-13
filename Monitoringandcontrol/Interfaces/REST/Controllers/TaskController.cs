@@ -8,30 +8,44 @@ using EcotrackPlatform.API.Monitoringandcontrol.Interfaces.REST.Resources.Reques
 namespace EcotrackPlatform.API.Monitoringandcontrol.Interfaces.REST.Controllers;
 
 [ApiController]
-[Route("api/tasks")]
+[Route("api/v1/tasks")]
 [Tags("Tasks")]
 public class TaskController : ControllerBase
 {
     private readonly CreateTaskCommandService _createTaskCommandService;
+    private readonly UpdateTaskCommandService _updateTaskCommandService;
     private readonly UpdateTaskStatusCommandService _updateTaskStatusCommandService;
     private readonly GetTasksQueryService _getTasksQueryService;
+    private readonly DeleteTaskCommandService _deleteTaskCommandService;
 
     public TaskController(CreateTaskCommandService createTaskCommandService,
-        UpdateTaskStatusCommandService updateTaskStatusCommandService, GetTasksQueryService getTasksQueryService)
+        UpdateTaskCommandService updateTaskCommandService,
+        UpdateTaskStatusCommandService updateTaskStatusCommandService,
+        GetTasksQueryService getTasksQueryService,
+        DeleteTaskCommandService deleteTaskCommandService)
     {
         _createTaskCommandService = createTaskCommandService;
+        _updateTaskCommandService = updateTaskCommandService;
         _updateTaskStatusCommandService = updateTaskStatusCommandService;
         _getTasksQueryService = getTasksQueryService;
+        _deleteTaskCommandService = deleteTaskCommandService;
     }
 
     [HttpPost]
     [SwaggerOperation(Summary = "Create a new task")]
     public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest request)
     {
-        var taskId = await _createTaskCommandService.Handle(request.Title, request.ResponsibleId);
-        var tasks = await _getTasksQueryService.Handle();
-        var task = tasks.Find(t => t.Id == taskId);
-        return CreatedAtAction(nameof(GetById), new {taskId}, TaskAssembler.ToCreatedResource(task!));
+        try
+        {
+            var taskId = await _createTaskCommandService.Handle(request.Title, request.Description, request.OrganizationId, request.PlotId, request.ResponsibleId);
+            var tasks = await _getTasksQueryService.Handle();
+            var task = tasks.Find(t => t.Id == taskId);
+            return CreatedAtAction(nameof(GetById), new { taskId }, TaskAssembler.ToCreatedResource(task!));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPatch("{taskId}/status")]
@@ -43,21 +57,28 @@ public class TaskController : ControllerBase
     }
 
     [HttpGet]
-    [SwaggerOperation(Summary = "Get tasks by Status")]
-    public async Task<IActionResult> GetTasksByStatus([FromQuery]string? status = null)
+    [SwaggerOperation(Summary = "Get tasks filtered by status, organizationId or responsibleId")]
+    public async Task<IActionResult> GetTasksByStatus(
+        [FromQuery] string? status = null,
+        [FromQuery] int? organizationId = null,
+        [FromQuery] int? responsibleId = null)
     {
         var tasks = await _getTasksQueryService.Handle();
+
         if (!string.IsNullOrEmpty(status))
         {
             if (Enum.TryParse<Domain.Model.ValueObjects.TaskStatus>(status, true, out var statusEnum))
-            {
                 tasks = tasks.Where(t => t.Status == statusEnum).ToList();
-            }
             else
-            {
                 return BadRequest(new { message = "Invalid status" });
-            }
         }
+
+        if (organizationId.HasValue)
+            tasks = tasks.Where(t => t.OrganizationId == organizationId.Value).ToList();
+
+        if (responsibleId.HasValue)
+            tasks = tasks.Where(t => t.ResponsibleId == responsibleId.Value).ToList();
+
         return Ok(tasks.Select(TaskAssembler.ToResource));
     }
 
@@ -72,5 +93,29 @@ public class TaskController : ControllerBase
             return NotFound();
         }
         return Ok(TaskAssembler.ToResource(task));
+    }
+
+    [HttpPut("{taskId:int}")]
+    [SwaggerOperation(Summary = "Update task title and description")]
+    public async Task<IActionResult> UpdateTask(int taskId, [FromBody] UpdateTaskRequest request)
+    {
+        try
+        {
+            await _updateTaskCommandService.Handle(taskId, request.Title, request.Description, request.ResponsibleId);
+            return Ok(new { message = "Task updated" });
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Task not found" });
+        }
+    }
+
+    [HttpDelete("{taskId:int}")]
+    [SwaggerOperation(Summary = "Delete a task by id")]
+    public async Task<IActionResult> DeleteTask(int taskId)
+    {
+        var deleted = await _deleteTaskCommandService.Handle(taskId);
+        if (!deleted) return NotFound(new { message = "Task not found" });
+        return NoContent();
     }
 }

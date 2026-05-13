@@ -35,10 +35,25 @@ public class TaskRepository : ITaskRepository
         return await _dbContext.Set<TaskAggregate>().ToListAsync();
     }
 
+    public async Task<List<TaskAggregate>> GetByOrganizationIdAsync(int organizationId)
+    {
+        return await _dbContext.Set<TaskAggregate>()
+            .Where(t => t.OrganizationId == organizationId)
+            .ToListAsync();
+    }
+
     public async Task UpdateAsync(TaskAggregate task)
     {
         task.SetUpdatedAt();
         _dbContext.Set<TaskAggregate>().Update(task);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var task = await _dbContext.Set<TaskAggregate>().FindAsync(id);
+        if (task == null) return;
+        _dbContext.Set<TaskAggregate>().Remove(task);
         await _dbContext.SaveChangesAsync();
     }
 }

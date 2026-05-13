@@ -9,7 +9,7 @@ public static class ChecklistAssembler
 {
     public static ChecklistResource ToResource(Checklist checklist)
     {
-        var items = checklist.Items.Select(i => new ChecklistItemResource(i.Id.ToString(), i.Description)).ToList();
+        var items = checklist.Items.Select(i => new ChecklistItemResource(i.Id.ToString(), i.Description, i.IsCompleted)).ToList();
         return new ChecklistResource(
             checklist.Id.ToString(),
             checklist.TaskId,

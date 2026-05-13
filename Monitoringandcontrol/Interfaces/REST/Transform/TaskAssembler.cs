@@ -10,6 +10,8 @@ public class TaskAssembler
         return new TaskResource(
                 task.Id.ToString(),
                 task.Title,
+                task.Description,
+                task.OrganizationId,
                 task.ResponsibleId,
                 task.Status.ToString(),
                 task.StartedAt,

@@ -11,6 +11,7 @@ public class TaskConfiguration :  IEntityTypeConfiguration<TaskAggregate>
         builder.HasKey(c => c.Id);
         builder.Property(c => c.Id).ValueGeneratedOnAdd();
         builder.Property(c => c.Title).HasMaxLength(150).IsRequired();
+        builder.Property(c => c.OrganizationId).IsRequired();
         builder.Property(c => c.ResponsibleId).IsRequired();
         builder.Property(c => c.Status).HasConversion<string>();
         builder.Property(c => c.StartedAt).HasMaxLength(10);

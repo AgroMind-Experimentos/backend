@@ -1,0 +1,61 @@
+using EcotrackPlatform.API.Iam.Domain.Repositories;
+using EcotrackPlatform.API.Profiles.Application.Internal.CommandServices;
+using EcotrackPlatform.API.Profiles.Application.Internal.QueryServices;
+using EcotrackPlatform.API.Profiles.Interfaces.REST.Resources;
+using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
+
+namespace EcotrackPlatform.API.Profiles.Interfaces.REST
+{
+    [ApiController]
+    [Route("api/v1/settings")]
+    public class SettingsController : ControllerBase
+    {
+        private readonly SettingsQueryService _queries;
+        private readonly SettingsCommandService _commands;
+        private readonly IAuthSessionRepository _sessions;
+
+        public SettingsController(
+            SettingsQueryService queries,
+            SettingsCommandService commands,
+            IAuthSessionRepository sessions)
+        {
+            _queries = queries;
+            _commands = commands;
+            _sessions = sessions;
+        }
+
+        private async Task<int?> GetCurrentProfileIdAsync()
+        {
+            if (!Request.Cookies.TryGetValue("sid", out var sid)) return null;
+            if (!Guid.TryParse(sid, out var sidGuid)) return null;
+            var s = await _sessions.FindByIdAsync(sidGuid);
+            return (s is not null && s.IsActive()) ? s.ProfileId : (int?)null;
+        }
+
+        [HttpGet]
+        [SwaggerOperation(Summary = "Obtener settings del usuario actual")]
+        public async Task<IActionResult> Get()
+        {
+            var pid = await GetCurrentProfileIdAsync();
+            if (pid is null) return Unauthorized();
+
+            var s = await _queries.GetByProfileIdAsync(pid.Value);
+            if (s is null) return Ok(new SettingsResource(true, "en", "light"));
+            return Ok(new SettingsResource(s.NotificationsEmail, s.Locale, s.Theme));
+        }
+
+        [HttpPatch]
+        [SwaggerOperation(Summary = "Actualizar settings del usuario actual")]
+        public async Task<IActionResult> Patch([FromBody] SettingsResource r)
+        {
+            var pid = await GetCurrentProfileIdAsync();
+            if (pid is null) return Unauthorized();
+
+            var updated = await _commands.UpsertAsync(
+                pid.Value, r.NotificationsEmail, r.Locale, r.Theme);
+
+            return Ok(new SettingsResource(updated.NotificationsEmail, updated.Locale, updated.Theme));
+        }
+    }
+}

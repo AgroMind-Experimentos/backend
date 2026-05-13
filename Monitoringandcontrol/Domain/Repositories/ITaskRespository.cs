@@ -9,5 +9,7 @@ public interface ITaskRepository
     Task<int> AddAsync(TaskAggregate task);
     Task<TaskAggregate> GetByIdAsync(int id);
     Task<List<TaskAggregate>> GetAllAsync();
+    Task<List<TaskAggregate>> GetByOrganizationIdAsync(int organizationId);
     Task UpdateAsync(TaskAggregate task);
+    Task DeleteAsync(int id);
 }
