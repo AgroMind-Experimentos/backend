@@ -3,7 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using TaskStatus = EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.ValueObjects.TaskStatus;
 
-namespace EcotrackPlatform.API.Tests;
+namespace EcotrackPlatform.Tests;
 
 [TestFixture]
 public class TaskAggregateTests

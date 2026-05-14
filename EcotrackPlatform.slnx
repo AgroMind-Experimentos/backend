@@ -2,4 +2,7 @@
   <Folder Name="/API/">
     <Project Path="API/EcotrackPlatform.API.csproj" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="EcotrackPlatform.Tests/EcotrackPlatform.Tests.csproj" />
+  </Folder>
 </Solution>

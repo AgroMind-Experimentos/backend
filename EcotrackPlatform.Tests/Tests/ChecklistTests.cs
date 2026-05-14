@@ -3,7 +3,7 @@ using EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.Entities;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace EcotrackPlatform.API.Tests;
+namespace EcotrackPlatform.Tests;
 
 [TestFixture]
 public class ChecklistTests
