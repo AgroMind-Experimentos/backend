@@ -67,7 +67,7 @@ public static class ServiceCollectionExtensions
             {
                 options.AddPolicy(CorsOriginLoader.GetPolicyName(isProduction), policy =>
                 {
-                    policy.WithOrigins(allowedOrigins)
+                    policy.SetIsOriginAllowed(origin => true) // DESESPERADO
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();

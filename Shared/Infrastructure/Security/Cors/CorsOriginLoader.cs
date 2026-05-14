@@ -5,6 +5,7 @@ namespace EcotrackPlatform.API.Shared.Infrastructure.Security.Cors;
 public static class CorsOriginLoader
 {
     private const string EnvFrontendUrl = "FRONTEND_URL";
+    private const string ProductionUrl = "https://agrotrackfront.vercel.app";
 
     public static string[] GetAllowedOrigins(bool isProduction)
     {
@@ -12,16 +13,11 @@ public static class CorsOriginLoader
 
         if (isProduction)
         {
-            originsStr = EnvVarUtils.GetRequiredEnvVar(EnvFrontendUrl);
-
-            if (originsStr.Contains("localhost", StringComparison.OrdinalIgnoreCase) || originsStr.Contains("127.0.0.1"))
-            {
-                throw new InvalidOperationException("CRITICAL: CORS pointing to localhost is strictly prohibited in the production environment.");
-            }
+            originsStr = ProductionUrl;
         }
         else
         {
-            originsStr = EnvVarUtils.GetOptionalEnvVar(EnvFrontendUrl, "http://localhost:5173");
+            originsStr = "http://localhost:5173";
         }
 
         return originsStr.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
