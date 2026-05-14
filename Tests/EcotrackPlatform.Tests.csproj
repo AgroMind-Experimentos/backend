@@ -24,4 +24,12 @@
       <ProjectReference Include="..\API\EcotrackPlatform.API.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Monitoringandcontrol\" />
+      <Folder Include="Organizations\" />
+      <Folder Include="Profiles\" />
+      <Folder Include="Report\" />
+      <Folder Include="Shared\" />
+    </ItemGroup>
+
 </Project>

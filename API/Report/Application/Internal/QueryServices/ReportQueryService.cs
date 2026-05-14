@@ -26,9 +26,9 @@ public class ReportQueryService
 
         // Calcular estadísticas
         var totalTasks = allTasks.Count;
-        var completedTasks = allTasks.Count(t => t.Status == TaskStatus.Completed);
-        var pendingTasks = allTasks.Count(t => t.Status == TaskStatus.Pending);
-        var inProgressTasks = allTasks.Count(t => t.Status == TaskStatus.InProgress);
+        var completedTasks = allTasks.Count(t => t.Status == Status.Completed);
+        var pendingTasks = allTasks.Count(t => t.Status == Status.Pending);
+        var inProgressTasks = allTasks.Count(t => t.Status == Status.InProgress);
 
         // Crear la estructura del reporte con datos reales
         var report = new

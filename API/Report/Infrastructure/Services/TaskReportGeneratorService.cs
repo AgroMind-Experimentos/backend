@@ -30,9 +30,9 @@ public class TaskReportGeneratorService : ITaskReportGeneratorService
 
         // Calcular estadísticas
         var totalTasks = tasksInPeriod.Count;
-        var completedTasks = tasksInPeriod.Count(t => t.Status == TaskStatus.Completed);
-        var pendingTasks = tasksInPeriod.Count(t => t.Status == TaskStatus.Pending);
-        var inProgressTasks = tasksInPeriod.Count(t => t.Status == TaskStatus.InProgress);
+        var completedTasks = tasksInPeriod.Count(t => t.Status == Status.Completed);
+        var pendingTasks = tasksInPeriod.Count(t => t.Status == Status.Pending);
+        var inProgressTasks = tasksInPeriod.Count(t => t.Status == Status.InProgress);
 
         // Crear la estructura del reporte con datos reales
         var reportData = new

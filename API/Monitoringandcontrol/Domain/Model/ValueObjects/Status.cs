@@ -1,6 +1,6 @@
 namespace EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.ValueObjects;
 
-public enum TaskStatus
+public enum Status
 {
     Pending,
     InProgress,

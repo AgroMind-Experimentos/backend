@@ -67,7 +67,7 @@ public class TaskController : ControllerBase
 
         if (!string.IsNullOrEmpty(status))
         {
-            if (Enum.TryParse<Domain.Model.ValueObjects.TaskStatus>(status, true, out var statusEnum))
+            if (Enum.TryParse<Domain.Model.ValueObjects.Status>(status, true, out var statusEnum))
                 tasks = tasks.Where(t => t.Status == statusEnum).ToList();
             else
                 return BadRequest(new { message = "Invalid status" });

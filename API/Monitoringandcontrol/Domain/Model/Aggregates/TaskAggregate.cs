@@ -2,7 +2,6 @@ using EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.Entities;
 
 namespace EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.Aggregates;
 
-using System;
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.ValueObjects;
 
 public class TaskAggregate
@@ -15,7 +14,7 @@ public class TaskAggregate
     public int OrganizationId { get; private set; }
     public int PlotId { get; private set; }
     public int ResponsibleId  { get; private set; }
-    public TaskStatus Status { get; private set; }
+    public Status Status { get; private set; }
     public DateTime? StartedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
     public DateTime CreatedAt { get; private set; }
@@ -34,26 +33,26 @@ public class TaskAggregate
         OrganizationId = organizationId;
         PlotId = plotId;
         ResponsibleId = responsibleId;
-        Status = TaskStatus.Pending;
+        Status = Status.Pending;
         CreatedAt = DateTime.UtcNow;
     }
 
     public void Start()
     {
-        if (Status != TaskStatus.Pending) 
+        if (Status != Status.Pending)
             throw new InvalidOperationException("Solo se pueden iniciar tareas pendientes.");
             
-        Status = TaskStatus.InProgress;
+        Status = Status.InProgress;
         StartedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
 
     public void Complete()
     {
-        if (Status != TaskStatus.InProgress)
+        if (Status != Status.InProgress)
             throw new InvalidOperationException("Solo se pueden completar tareas que estén en progreso.");
             
-        Status = TaskStatus.Completed;
+        Status = Status.Completed;
         CompletedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
