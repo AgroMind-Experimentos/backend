@@ -12,7 +12,8 @@ public static class PlotResourceFromEntityAssembler
             OrganizationId = entity.OrganizationId,
             Area = entity.Area,
             Name = entity.Name,
-            Location = entity.Location,
+            Latitude = entity.Coordinates.Latitude,
+            Longitude = entity.Coordinates.Longitude,
             Cultivation = entity.Crop,
             CreatedAt = entity.CreatedAt
         };

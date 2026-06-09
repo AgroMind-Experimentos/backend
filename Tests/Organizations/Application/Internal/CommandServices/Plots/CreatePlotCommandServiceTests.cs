@@ -27,7 +27,7 @@ public class CreatePlotCommandServiceTests
     {
         var service = new CreatePlotCommandService(_plotRepositoryMock.Object, _orgRepositoryMock.Object, _uowMock.Object);
         var orgId = 1;
-        var command = new CreatePlotCommand("Lote 1", "Norte", 15.5, "Trigo", orgId);
+        var command = new CreatePlotCommand("Lote 1", -11.064932, -75.340075, 50, "Trigo", orgId);
         
         var cords = new Coordinates(-11.064932, -75.340075);
         var org = new Organization("Org", "Desc", cords, 5);
@@ -48,7 +48,7 @@ public class CreatePlotCommandServiceTests
     public async Task CreateAsync_OrganizationNotFound_ShouldReturnError()
     {
         var service = new CreatePlotCommandService(_plotRepositoryMock.Object, _orgRepositoryMock.Object, _uowMock.Object);
-        var command = new CreatePlotCommand("Lote 1", "Norte", 15.5, "Trigo", 99);
+        var command = new CreatePlotCommand("Lote 1", -11.064932, -75.340075, 50, "Trigo", 1);
 
         _orgRepositoryMock.Setup(repo => repo.FindByIdWithMembersAsync(99)).ReturnsAsync((Organization?)null);
 
@@ -67,7 +67,8 @@ public class CreatePlotCommandServiceTests
         var service = new CreatePlotCommandService(_plotRepositoryMock.Object, _orgRepositoryMock.Object, _uowMock.Object);
         var orgId = 1;
         // Area 0 will cause an ArgumentException from the Plot constructor
-        var command = new CreatePlotCommand("Lote 1", "Norte", 0, "Trigo", orgId);
+        
+        var command = new CreatePlotCommand("Lote 1", -11.064932, -75.340075, 50, "Trigo", orgId);
         
         var cords = new Coordinates(-11.064932, -75.340075);
         var org = new Organization("Org", "Desc", cords, 5);

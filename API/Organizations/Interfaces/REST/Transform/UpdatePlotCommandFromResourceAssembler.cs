@@ -9,7 +9,8 @@ public static class UpdatePlotCommandFromResourceAssembler
         => new(
             id,
             resource.Name,
-            resource.Location,
+            resource.Latitude,
+            resource.Longitude,
             resource.Area,
             resource.Crop
         );

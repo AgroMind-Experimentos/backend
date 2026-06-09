@@ -2,7 +2,8 @@
 
 public record CreatePlotCommand(
     string Name,
-    string Location,
+    double Latitude,
+    double Longitude,
     double Area,
     string Crop,
     int OrganizationId

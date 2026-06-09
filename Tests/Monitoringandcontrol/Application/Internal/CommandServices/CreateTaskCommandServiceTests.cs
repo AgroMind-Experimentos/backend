@@ -42,9 +42,9 @@ public class CreateTaskCommandServiceTests
         var responsibleId = 5;
         var expectedTaskId = 100;
 
-        var cords = new Coordinates(-11.064932, -75.340075);
-        var org = new Organization("Org", "Desc", cords, 5);
-        var plot = new Plot("Plot", "Loc", 10.0, "Crop", orgId);
+        var coords = new Coordinates(-11.064932, -75.340075);
+        var org = new Organization("Org", "Desc", coords, 5);
+        var plot = new Plot("Plot", coords, 10.0, "Crop", orgId);
 
         _orgRepositoryMock.Setup(repo => repo.FindByIdAsync(orgId)).ReturnsAsync(org);
         _plotRepositoryMock.Setup(repo => repo.FindByIdAsync(plotId)).ReturnsAsync(plot);

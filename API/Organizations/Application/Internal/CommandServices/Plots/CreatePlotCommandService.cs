@@ -1,5 +1,6 @@
 using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Organizations.Domain.Model.Commands;
+using EcotrackPlatform.API.Organizations.Domain.Model.ValueObjects;
 using EcotrackPlatform.API.Organizations.Domain.Repositories;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
 
@@ -30,9 +31,10 @@ public class CreatePlotCommandService(
 
         try
         {
+            var coordinates = new Coordinates(command.Latitude, command.Longitude);
             var plot = new Plot(
                 command.Name,
-                command.Location,
+                coordinates,
                 command.Area,
                 command.Crop,
                 command.OrganizationId

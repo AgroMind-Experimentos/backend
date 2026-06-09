@@ -1,5 +1,7 @@
+using EcotrackPlatform.API.Organizations.Application.Internal.CommandServices.Organizations;
 using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Organizations.Domain.Model.Commands;
+using EcotrackPlatform.API.Organizations.Domain.Model.ValueObjects;
 using EcotrackPlatform.API.Organizations.Domain.Repositories;
 using EcotrackPlatform.API.Profiles.Domain.Repositories;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
@@ -38,9 +40,20 @@ public class UpdatePlotCommandService(
 
         try
         {
+            Coordinates? coordinates = null;
+        
+            if (command.Latitude.HasValue && command.Longitude.HasValue)
+            {
+                coordinates = new Coordinates(command.Latitude.Value, command.Longitude.Value);
+            }
+            else if (command.Latitude.HasValue || command.Longitude.HasValue)
+            {
+                return new UpdatePlotResult(Error: UpdatePlotError.InvalidPlotData);
+            }
+            
             plot.Update(
                 command.Name,
-                command.Location,
+                coordinates,
                 command.Area,
                 command.Crop
             );

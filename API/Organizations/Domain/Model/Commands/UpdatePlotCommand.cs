@@ -3,7 +3,8 @@ namespace EcotrackPlatform.API.Organizations.Domain.Model.Commands;
 public record UpdatePlotCommand(
     int Id,
     string? Name,
-    string? Location,
+    double? Latitude,
+    double? Longitude,
     double? Area,
     string? Crop
 );

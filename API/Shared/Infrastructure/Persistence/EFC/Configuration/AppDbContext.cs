@@ -72,6 +72,20 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
 
             builder.Entity<Plot>()
                 .HasKey(p => p.Id);
+            
+            builder.Entity<Plot>(entity =>
+            {
+                entity.OwnsOne(o => o.Coordinates, coordinates =>
+                {
+                    coordinates.WithOwner().HasForeignKey("Id");
+
+                    coordinates.Property(c => c.Latitude)
+                        .IsRequired();
+    
+                    coordinates.Property(c => c.Longitude)
+                        .IsRequired();
+                });
+            });
         
             builder.Entity<ChecklistItem>()
                 .HasOne<Checklist>()

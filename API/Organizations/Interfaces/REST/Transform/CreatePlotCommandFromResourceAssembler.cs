@@ -6,5 +6,5 @@ namespace EcotrackPlatform.API.Organizations.Interfaces.REST.Transform;
 public static class CreatePlotCommandFromResourceAssembler
 {
     public static CreatePlotCommand ToCommand(CreatePlotResource resource) =>
-    new(resource.Name, resource.Location, resource.Area, resource.Cultivation, resource.OrganizationId);
+    new(resource.Name, resource.Latitude, resource.Longitude,  resource.Area, resource.Cultivation, resource.OrganizationId);
 }

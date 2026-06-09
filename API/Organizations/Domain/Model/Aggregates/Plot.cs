@@ -1,10 +1,13 @@
-﻿namespace EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
+﻿using EcotrackPlatform.API.Organizations.Domain.Model.ValueObjects;
+
+namespace EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 
 public class Plot
 {
     public int Id { get; }
     public string Name { get; private set; }
-    public string Location { get; private set; }
+    
+    public Coordinates Coordinates { get; private set; } = default!;
     public double Area { get; private set; }
     public string Crop { get; private set; }
     public int OrganizationId { get; private set; }
@@ -12,22 +15,21 @@ public class Plot
 
     protected Plot() { }
 
-    public Plot(string name, string location, double area, string crop, int organizationId)
+    public Plot(string name, Coordinates coordinates, double area, string crop, int organizationId)
     {
         ValidateString(name, nameof(Name));
-        ValidateString(location, nameof(Location));
         ValidateArea(area);
         ValidateString(crop, nameof(Crop));
 
         Name = name;
-        Location = location;
+        Coordinates = coordinates;
         Area = area;
         Crop = crop;
         OrganizationId = organizationId;
         CreatedAt = DateTime.UtcNow;
     }
 
-    public void Update(string? name, string? location, double? area, string? crop)
+    public void Update(string? name, Coordinates? coordinates, double? area, string? crop)
     {
         if (name is not null)
         {
@@ -35,10 +37,9 @@ public class Plot
             Name = name;
         }
 
-        if (location is not null)
+        if (coordinates is not null)
         {
-            ValidateString(location, nameof(Location));
-            Location = location;
+            Coordinates = coordinates;
         }
 
         if (area is not null)
