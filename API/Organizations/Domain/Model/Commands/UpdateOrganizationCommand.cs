@@ -4,6 +4,7 @@ public record UpdateOrganizationCommand(
     int Id,
     string? Name,
     string? Description,
-    string? Location,
+    double? Latitude,
+    double? Longitude,
     List<int>? MemberIds
 );

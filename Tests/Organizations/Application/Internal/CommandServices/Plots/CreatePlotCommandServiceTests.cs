@@ -1,6 +1,7 @@
 using EcotrackPlatform.API.Organizations.Application.Internal.CommandServices.Plots;
 using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Organizations.Domain.Model.Commands;
+using EcotrackPlatform.API.Organizations.Domain.Model.ValueObjects;
 using EcotrackPlatform.API.Organizations.Domain.Repositories;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
 
@@ -28,9 +29,10 @@ public class CreatePlotCommandServiceTests
         var orgId = 1;
         var command = new CreatePlotCommand("Lote 1", "Norte", 15.5, "Trigo", orgId);
         
-        var organization = new Organization("Org", "Desc", "Loc", 5);
+        var cords = new Coordinates(-11.064932, -75.340075);
+        var org = new Organization("Org", "Desc", cords, 5);
 
-        _orgRepositoryMock.Setup(repo => repo.FindByIdWithMembersAsync(orgId)).ReturnsAsync(organization);
+        _orgRepositoryMock.Setup(repo => repo.FindByIdWithMembersAsync(orgId)).ReturnsAsync(org);
 
         var result = await service.CreateAsync(command);
 
@@ -67,9 +69,10 @@ public class CreatePlotCommandServiceTests
         // Area 0 will cause an ArgumentException from the Plot constructor
         var command = new CreatePlotCommand("Lote 1", "Norte", 0, "Trigo", orgId);
         
-        var organization = new Organization("Org", "Desc", "Loc", 5);
+        var cords = new Coordinates(-11.064932, -75.340075);
+        var org = new Organization("Org", "Desc", cords, 5);
 
-        _orgRepositoryMock.Setup(repo => repo.FindByIdWithMembersAsync(orgId)).ReturnsAsync(organization);
+        _orgRepositoryMock.Setup(repo => repo.FindByIdWithMembersAsync(orgId)).ReturnsAsync(org);
 
         var result = await service.CreateAsync(command);
 

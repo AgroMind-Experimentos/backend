@@ -1,6 +1,7 @@
 using EcotrackPlatform.API.Organizations.Application.Internal.CommandServices;
 using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Organizations.Domain.Model.Entities;
+using EcotrackPlatform.API.Organizations.Domain.Model.ValueObjects;
 using EcotrackPlatform.API.Organizations.Domain.Repositories;
 using EcotrackPlatform.API.Profiles.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Profiles.Domain.Model.ValueObjects;
@@ -80,7 +81,8 @@ public class InvitationCommandServiceTests
         var orgId = 1;
 
         var invitation = new Invitation(orgId, farmerProfileId, 5); // Status defaults to Pending
-        var org = new Organization("Org", "Desc", "Loc", 5);
+        var cords = new Coordinates(-11.064932, -75.340075);
+        var org = new Organization("Org", "Desc", cords, 5);
 
         _invitationRepositoryMock.Setup(repo => repo.FindByIdAsync(invitationId)).ReturnsAsync(invitation);
         _organizationRepositoryMock.Setup(repo => repo.FindByIdWithMembersAsync(orgId)).ReturnsAsync(org);

@@ -4,6 +4,7 @@ using EcotrackPlatform.API.Monitoringandcontrol.Application.Internal.CommandServ
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Repositories;
 using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
+using EcotrackPlatform.API.Organizations.Domain.Model.ValueObjects;
 using EcotrackPlatform.API.Organizations.Domain.Repositories;
 using FluentAssertions;
 using Moq;
@@ -41,7 +42,8 @@ public class CreateTaskCommandServiceTests
         var responsibleId = 5;
         var expectedTaskId = 100;
 
-        var org = new Organization("Org", "Desc", "Loc", 5);
+        var cords = new Coordinates(-11.064932, -75.340075);
+        var org = new Organization("Org", "Desc", cords, 5);
         var plot = new Plot("Plot", "Loc", 10.0, "Crop", orgId);
 
         _orgRepositoryMock.Setup(repo => repo.FindByIdAsync(orgId)).ReturnsAsync(org);
@@ -85,7 +87,8 @@ public class CreateTaskCommandServiceTests
         var orgId = 1;
         var plotId = 99;
 
-        var org = new Organization("Org", "Desc", "Loc", 5);
+        var cords = new Coordinates(-11.064932, -75.340075);
+        var org = new Organization("Org", "Desc", cords, 5);
 
         _orgRepositoryMock.Setup(repo => repo.FindByIdAsync(orgId)).ReturnsAsync(org);
         _plotRepositoryMock.Setup(repo => repo.FindByIdAsync(plotId)).ReturnsAsync((Plot?)null);

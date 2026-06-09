@@ -1,4 +1,5 @@
 ﻿using EcotrackPlatform.API.Organizations.Domain.Model.Entities;
+using EcotrackPlatform.API.Organizations.Domain.Model.ValueObjects;
 using EcotrackPlatform.API.Profiles.Domain.Model.Aggregates;
 
 namespace EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
@@ -8,7 +9,8 @@ public class Organization
     public int Id { get; private set; }
     public string Name { get; private set; } = default!;
     public string Description { get; private set; } = default!;
-    public string Location { get; private set; } = default!;
+    
+    public Coordinates Coordinates { get; private set; } = default!;
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
 
     private readonly List<OrganizationMember> _members = new();
@@ -22,20 +24,19 @@ public class Organization
 
     protected Organization() { }
 
-    public Organization(string name, string description, string location, int agronomistOwnerId)
+    public Organization(string name, string description, Coordinates coordinates, int agronomistOwnerId)
     {
         ValidateString(name, nameof(Name));
         ValidateString(description, nameof(Description));
-        ValidateString(location, nameof(Location));
 
         Name = name;
         Description = description;
-        Location = location;
+        Coordinates = coordinates;
         CreatedAt = DateTime.UtcNow;
         AgronomistOwnerId = agronomistOwnerId;
     }
 
-    public void Update(string? name, string? description, string? location)
+    public void Update(string? name, string? description, Coordinates? coordinates)
     {
         if (name is not null)
         {
@@ -49,10 +50,9 @@ public class Organization
             Description = description;
         }
 
-        if (location is not null)
+        if (coordinates is not null)
         {
-            ValidateString(location, nameof(Location));
-            Location = location;
+            Coordinates = coordinates;
         }
     }
 

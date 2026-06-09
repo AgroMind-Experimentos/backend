@@ -23,7 +23,7 @@ public class CreateOrganizationCommandServiceTests
     public async Task CreateAsync_ValidCommand_ShouldCreateOrganizationAndSyncMembers()
     {
         var service = new CreateOrganizationCommandService(_repositoryMock.Object, _uowMock.Object);
-        var command = new CreateOrganizationCommand("Finca Nueva", "Desc", "Loc", 5);
+        var command = new CreateOrganizationCommand("Finca Nueva", "Desc", -11.064932, -75.340075, 5);
 
         var result = await service.CreateAsync(command);
 
@@ -41,7 +41,7 @@ public class CreateOrganizationCommandServiceTests
     public async Task CreateAsync_InvalidData_ShouldCatchExceptionAndReturnError()
     {
         var service = new CreateOrganizationCommandService(_repositoryMock.Object, _uowMock.Object);
-        var command = new CreateOrganizationCommand("", "Desc", "Loc", 5);
+        var command = new CreateOrganizationCommand("", "Desc", -11.064932, -75.340075, 5);
 
         var result = await service.CreateAsync(command);
 

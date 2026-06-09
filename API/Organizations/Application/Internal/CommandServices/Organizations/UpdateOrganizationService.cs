@@ -1,5 +1,6 @@
 using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Organizations.Domain.Model.Commands;
+using EcotrackPlatform.API.Organizations.Domain.Model.ValueObjects;
 using EcotrackPlatform.API.Organizations.Domain.Repositories;
 using EcotrackPlatform.API.Profiles.Domain.Repositories;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
@@ -31,10 +32,21 @@ public class UpdateOrganizationCommandService(
 
         try
         {
+            Coordinates? coordinates = null;
+        
+            if (command.Latitude.HasValue && command.Longitude.HasValue)
+            {
+                coordinates = new Coordinates(command.Latitude.Value, command.Longitude.Value);
+            }
+            else if (command.Latitude.HasValue || command.Longitude.HasValue)
+            {
+                return new UpdateOrganizationResult(Error: UpdateOrganizationError.InvalidOrganizationData);
+            }
+            
             organization.Update(
                 command.Name,
                 command.Description,
-                command.Location
+                coordinates
             );
 
             if (command.MemberIds is not null)

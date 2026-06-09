@@ -1,5 +1,6 @@
 using EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 using EcotrackPlatform.API.Organizations.Domain.Model.Commands;
+using EcotrackPlatform.API.Organizations.Domain.Model.ValueObjects;
 using EcotrackPlatform.API.Organizations.Domain.Repositories;
 using EcotrackPlatform.API.Shared.Domain.Repositories;
 
@@ -24,10 +25,12 @@ public class CreateOrganizationCommandService(
     {
         try
         {
+            var coordinates = new Coordinates(command.Latitude, command.Longitude);
+            
             var org = new Organization(
                 command.Name,
                 command.Description,
-                command.Location,
+                coordinates,
                 command.AgronomistId
             );
 
