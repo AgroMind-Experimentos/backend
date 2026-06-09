@@ -63,4 +63,29 @@ public class ReportsController : ControllerBase
             return StatusCode(500, new { message = $"Error al generar el reporte PDF: {ex.Message}" });
         }
     }
+    
+    [HttpGet("excel")]
+    [SwaggerOperation(
+        Summary = "Generar reporte del estado de todas las tareas (Excel)",
+        Description = "Genera y descarga un reporte en excel con estadísticas y detalles de todas las tareas creadas en el sistema",
+        OperationId = "GenerateTasksReportExcel"
+    )]
+    [SwaggerResponse(200, "Reporte Excel generado exitosamente")]
+    public async Task<IActionResult> GenerateTasksReportExcel([FromQuery] int? organizationId = null)
+    {
+        try
+        {
+            var excelBytes = await _queryService.GenerateTasksReportExcelAsync(organizationId);
+        
+            var fileName = $"Reporte_Tareas_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+        
+            const string excelMimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            
+            return File(excelBytes, excelMimeType, fileName);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = $"Error al generar el reporte Excel: {ex.Message}" });
+        }
+    }
 }

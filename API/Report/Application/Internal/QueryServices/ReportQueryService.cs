@@ -1,18 +1,21 @@
-﻿namespace EcotrackPlatform.API.Report.Application.Internal.QueryServices;
+﻿using EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.ValueObjects;
+using EcotrackPlatform.API.Report.Infrastructure.Services;
+
+namespace EcotrackPlatform.API.Report.Application.Internal.QueryServices;
 
 using EcotrackPlatform.API.Monitoringandcontrol.Domain.Repositories;
-using EcotrackPlatform.API.Monitoringandcontrol.Domain.Model.ValueObjects;
-using EcotrackPlatform.API.Report.Infrastructure.Services;
 
 public class ReportQueryService
 {
     private readonly ITaskRepository _taskRepository;
     private readonly PdfReportGeneratorService _pdfGenerator;
+    private readonly ExcelReportGeneratorService _excelGenerator;
 
-    public ReportQueryService(ITaskRepository taskRepository, PdfReportGeneratorService pdfGenerator)
+    public ReportQueryService(ITaskRepository taskRepository, PdfReportGeneratorService pdfGenerator, ExcelReportGeneratorService excelGenerator)
     {
         _taskRepository = taskRepository;
         _pdfGenerator = pdfGenerator;
+        _excelGenerator = excelGenerator;
     }
 
     /// <summary>
@@ -69,6 +72,13 @@ public class ReportQueryService
         var pdfBytes = _pdfGenerator.GenerateTasksReportPdf(reportData);
         
         return pdfBytes;
+    }
+    
+    public async Task<byte[]> GenerateTasksReportExcelAsync(int? organizationId = null)
+    {
+        var reportData = await GenerateTasksReportAsync(organizationId);
+    
+        return _excelGenerator.GenerateTasksReportExcel(reportData);
     }
 }
 
