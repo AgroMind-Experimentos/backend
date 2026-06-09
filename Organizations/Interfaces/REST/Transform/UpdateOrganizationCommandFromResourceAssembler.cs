@@ -10,7 +10,8 @@ public static class UpdateOrganizationCommandFromResourceAssembler
             id,
             resource.Name,
             resource.Description,
-            resource.Location,
+            resource.Latitude,
+            resource.Longitude,
             resource.MemberIds
         );
 }

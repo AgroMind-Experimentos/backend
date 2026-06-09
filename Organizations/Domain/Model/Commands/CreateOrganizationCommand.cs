@@ -3,7 +3,8 @@
 public record CreateOrganizationCommand(
     string Name,
     string Description,
-    string Location,
+    double Latitude,
+    double Longitude,
     int AgronomistId
 );
 
