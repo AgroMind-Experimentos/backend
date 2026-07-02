@@ -25,3 +25,9 @@ services:
       # a mano con el host de tu MySQL externo.
       - key: DB_HOST
         sync: false
+
+      # Tampoco está en el README: sin ella el código usa el default
+      # "ecotrack" como nombre de schema, que puede no coincidir con el
+      # que te asignó tu proveedor de MySQL externo.
+      - key: DB_NAME
+        sync: false
