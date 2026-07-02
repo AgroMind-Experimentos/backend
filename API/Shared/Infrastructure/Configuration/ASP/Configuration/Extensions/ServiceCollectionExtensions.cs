@@ -205,6 +205,7 @@ public static IServiceCollection AddSharedContext(this IServiceCollection servic
     {
         services.AddScoped<Report.Application.Internal.QueryServices.ReportQueryService>();
         services.AddScoped<Report.Infrastructure.Services.PdfReportGeneratorService>();
+        services.AddScoped<Report.Infrastructure.Services.ExcelReportGeneratorService>();
         return services;
     }
 
