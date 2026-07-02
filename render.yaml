@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: ecotrack-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+    healthCheckPath: /swagger/index.html
+    envVars:
+      # DB_USER, DB_PASSWORD, JWT_SECRET: las 3 variables que exige el
+      # README. Completa DB_USER y DB_PASSWORD manualmente en el
+      # dashboard de Render (base de datos MySQL externa, ej. PlanetScale,
+      # Railway, Aiven). JWT_SECRET se genera solo.
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+
+      # No está en el README, pero es necesaria igual: sin ella el host
+      # por defecto es "localhost", y el código rechaza ese valor en
+      # producción (ver DbConnectionStringLoader.cs). Complétala también
+      # a mano con el host de tu MySQL externo.
+      - key: DB_HOST
+        sync: false
+
+      # Tampoco está en el README: sin ella el código usa el default
+      # "ecotrack" como nombre de schema, que puede no coincidir con el
+      # que te asignó tu proveedor de MySQL externo.
+      - key: DB_NAME
+        sync: false
