@@ -4,7 +4,7 @@ namespace EcotrackPlatform.API.Organizations.Domain.Model.Aggregates;
 
 public class Plot
 {
-    public int Id { get; }
+    public int Id { get; private set; }
     public string Name { get; private set; }
     
     public Coordinates Coordinates { get; private set; } = default!;

@@ -70,18 +70,20 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
                 .WithMany(o => o.Members)
                 .HasForeignKey(om => om.OrganizationId);
 
-            builder.Entity<Plot>()
-                .HasKey(p => p.Id);
-            
             builder.Entity<Plot>(entity =>
             {
-                entity.OwnsOne(o => o.Coordinates, coordinates =>
+                entity.HasKey(p => p.Id);
+
+                entity.OwnsOne(p => p.Coordinates, coordinates =>
                 {
                     coordinates.WithOwner().HasForeignKey("Id");
 
+                    coordinates.Property<int>("PlotId")
+                        .HasColumnName("id");
+
                     coordinates.Property(c => c.Latitude)
                         .IsRequired();
-    
+
                     coordinates.Property(c => c.Longitude)
                         .IsRequired();
                 });
