@@ -8,28 +8,20 @@ services:
     region: oregon
     healthCheckPath: /swagger/index.html
     envVars:
-      - key: ASPNETCORE_ENVIRONMENT
-        value: Production
-
-      # Base de datos MySQL externa (Render no ofrece MySQL administrado,
-      # solo Postgres/Redis). Usa un proveedor como PlanetScale, Railway,
-      # Aiven o AWS RDS y completa estos valores manualmente en el
-      # dashboard de Render.
-      - key: DB_HOST
-        sync: false
-      - key: DB_PORT
-        value: "3306"
+      # DB_USER, DB_PASSWORD, JWT_SECRET: las 3 variables que exige el
+      # README. Completa DB_USER y DB_PASSWORD manualmente en el
+      # dashboard de Render (base de datos MySQL externa, ej. PlanetScale,
+      # Railway, Aiven). JWT_SECRET se genera solo.
       - key: DB_USER
         sync: false
       - key: DB_PASSWORD
         sync: false
-      - key: DB_NAME
-        value: ecotrack
-
-      # Render genera un valor aleatorio seguro automáticamente
       - key: JWT_SECRET
         generateValue: true
 
-      # URL del frontend permitido por CORS en producción
-      - key: FRONTEND_URL
-        value: https://agrotrackfront.vercel.app
+      # No está en el README, pero es necesaria igual: sin ella el host
+      # por defecto es "localhost", y el código rechaza ese valor en
+      # producción (ver DbConnectionStringLoader.cs). Complétala también
+      # a mano con el host de tu MySQL externo.
+      - key: DB_HOST
+        sync: false
