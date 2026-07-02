@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: ecotrack-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+    healthCheckPath: /swagger/index.html
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+
+      # Base de datos MySQL externa (Render no ofrece MySQL administrado,
+      # solo Postgres/Redis). Usa un proveedor como PlanetScale, Railway,
+      # Aiven o AWS RDS y completa estos valores manualmente en el
+      # dashboard de Render.
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        value: ecotrack
+
+      # Render genera un valor aleatorio seguro automáticamente
+      - key: JWT_SECRET
+        generateValue: true
+
+      # URL del frontend permitido por CORS en producción
+      - key: FRONTEND_URL
+        value: https://agrotrackfront.vercel.app
