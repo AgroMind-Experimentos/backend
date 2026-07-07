@@ -118,3 +118,5 @@ ServiceFabricBackup/
 # AI Mardown
 
 CLAUDE.md
+
+.env

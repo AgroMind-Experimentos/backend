@@ -54,7 +54,8 @@ public class AuthController(
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
+                Secure = true,
                 Expires = result.Session!.ExpiresAt
             };
 
